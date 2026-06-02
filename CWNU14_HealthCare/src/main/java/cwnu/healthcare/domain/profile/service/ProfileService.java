@@ -19,8 +19,8 @@ public class ProfileService {
         return toResponse(profile);
     }
 
-    public HealthProfileResponse updateProfile(HealthProfileRequest request) {
-        HealthProfile profile = healthProfileRepository.findByUserId(request.getUserId())
+    public HealthProfileResponse updateProfile(String userId, HealthProfileRequest request) {
+        HealthProfile profile = healthProfileRepository.findByUserId(userId)
                 .map(existingProfile -> HealthProfile.builder()
                         .id(existingProfile.getId())
                         .userId(existingProfile.getUserId())
@@ -30,7 +30,7 @@ public class ProfileService {
                         .targetWeight(request.getTargetWeight())
                         .build())
                 .orElseGet(() -> HealthProfile.builder()
-                        .userId(request.getUserId())
+                        .userId(userId)
                         .height(request.getHeight())
                         .weight(request.getWeight())
                         .targetCalories(request.getTargetCalories())
