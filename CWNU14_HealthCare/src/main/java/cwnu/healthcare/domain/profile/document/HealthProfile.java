@@ -1,5 +1,6 @@
 package cwnu.healthcare.domain.profile.document;
 
+import cwnu.healthcare.global.common.BaseDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Builder
 @Document(collection = "health_profiles")
-public class HealthProfile {
+public class HealthProfile extends BaseDocument {
 
     @Id
     private String id;
