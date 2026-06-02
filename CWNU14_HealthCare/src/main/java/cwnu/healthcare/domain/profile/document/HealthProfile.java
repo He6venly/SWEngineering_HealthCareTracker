@@ -19,7 +19,7 @@ public class HealthProfile extends BaseDocument {
     @Id
     private String id;
 
-    @Indexed
+    @Indexed(unique = true)
     private String userId;
 
     private double height;
