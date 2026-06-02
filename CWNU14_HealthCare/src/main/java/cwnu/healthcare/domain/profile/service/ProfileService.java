@@ -7,14 +7,18 @@ import cwnu.healthcare.domain.profile.repository.HealthProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
+    private static final String PROFILE_NOT_FOUND = "PROFILE_NOT_FOUND";
+
     private final HealthProfileRepository healthProfileRepository;
 
     public HealthProfileResponse getProfile(String userId) {
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new NoSuchElementException(PROFILE_NOT_FOUND));
 
         return toResponse(profile);
     }
