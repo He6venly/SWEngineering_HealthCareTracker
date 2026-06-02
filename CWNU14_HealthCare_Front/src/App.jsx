@@ -1,19 +1,44 @@
+import { useState } from 'react';
+import AppLayout from './components/AppLayout.jsx';
+
+const tabContent = {
+  home: {
+    label: 'Today',
+    value: 'Your health summary',
+  },
+  records: {
+    label: 'Records',
+    value: 'Track your daily activity',
+  },
+  advice: {
+    label: 'AI Advice',
+    value: 'Personalized guidance',
+  },
+  profile: {
+    label: 'Profile',
+    value: 'Manage your health goals',
+  },
+};
+
 function App() {
+  const [activeTab, setActiveTab] = useState('home');
+  const content = tabContent[activeTab];
+
   return (
-    <main className="app">
-      <header className="app-header">
-        <p className="app-eyebrow">Health tracker</p>
-        <h1 className="app-title">CWNU14 HealthCare</h1>
+    <AppLayout activeTab={activeTab} onTabChange={setActiveTab}>
+      <section className="screen-heading">
+        <p className="screen-heading-label">{content.label}</p>
+        <h2 className="screen-heading-title">{content.value}</h2>
         <p className="app-summary">
-          Your health dashboard is ready for the next feature.
+          This area is ready for the next feature.
         </p>
-      </header>
+      </section>
 
       <section className="summary-card">
         <p className="summary-card-label">Frontend status</p>
-        <p className="summary-card-value">Base styles applied</p>
+        <p className="summary-card-value">App layout applied</p>
       </section>
-    </main>
+    </AppLayout>
   );
 }
 
