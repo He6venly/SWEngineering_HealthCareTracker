@@ -4,10 +4,10 @@ import cwnu.healthcare.domain.profile.document.HealthProfile;
 import cwnu.healthcare.domain.profile.dto.HealthProfileRequest;
 import cwnu.healthcare.domain.profile.dto.HealthProfileResponse;
 import cwnu.healthcare.domain.profile.repository.HealthProfileRepository;
+import cwnu.healthcare.global.exception.BusinessException;
+import cwnu.healthcare.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,21 +16,22 @@ public class ProfileService {
 
     public HealthProfileResponse getProfile(String userId) {
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROFILE_NOT_FOUND));
 
         return toResponse(profile);
     }
 
     public HealthProfileResponse updateProfile(String userId, HealthProfileRequest request) {
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
-                .map(existingProfile -> HealthProfile.builder()
-                        .id(existingProfile.getId())
-                        .userId(existingProfile.getUserId())
-                        .height(request.getHeight())
-                        .weight(request.getWeight())
-                        .targetCalories(request.getTargetCalories())
-                        .targetWeight(request.getTargetWeight())
-                        .build())
+                .map(existingProfile -> {
+                    existingProfile.update(
+                            request.getHeight(),
+                            request.getWeight(),
+                            request.getTargetCalories(),
+                            request.getTargetWeight()
+                    );
+                    return existingProfile;
+                })
                 .orElseGet(() -> HealthProfile.builder()
                         .userId(userId)
                         .height(request.getHeight())
