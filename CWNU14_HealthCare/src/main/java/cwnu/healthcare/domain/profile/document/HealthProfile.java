@@ -29,4 +29,11 @@ public class HealthProfile extends BaseDocument {
     private int targetCalories;
 
     private double targetWeight;
+
+    public void update(double height, double weight, int targetCalories, double targetWeight) {
+        this.height = height;
+        this.weight = weight;
+        this.targetCalories = targetCalories;
+        this.targetWeight = targetWeight;
+    }
 }
