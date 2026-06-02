@@ -1,4 +1,7 @@
 package cwnu.healthcare.domain.user.dto;
 
-public class LoginResponse {
+public record LoginResponse(
+	String accessToken,
+	String tokenType
+) {
 }
