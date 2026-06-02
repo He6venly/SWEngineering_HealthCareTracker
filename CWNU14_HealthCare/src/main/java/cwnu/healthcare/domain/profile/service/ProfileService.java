@@ -12,13 +12,11 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
-    private static final String PROFILE_NOT_FOUND = "PROFILE_NOT_FOUND";
-
     private final HealthProfileRepository healthProfileRepository;
 
     public HealthProfileResponse getProfile(String userId) {
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException(PROFILE_NOT_FOUND));
+                .orElseThrow(NoSuchElementException::new);
 
         return toResponse(profile);
     }
