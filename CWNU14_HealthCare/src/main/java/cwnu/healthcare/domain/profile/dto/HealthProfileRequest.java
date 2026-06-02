@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class HealthProfileRequest {
-    private String userId;
-
     private double height;
 
     private double weight;
