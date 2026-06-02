@@ -1,8 +1,18 @@
 function App() {
   return (
-    <main>
-      <h1>CWNU14 HealthCare</h1>
-      <p>프론트엔드 실행 환경이 준비되었습니다.</p>
+    <main className="app">
+      <header className="app-header">
+        <p className="app-eyebrow">Health tracker</p>
+        <h1 className="app-title">CWNU14 HealthCare</h1>
+        <p className="app-summary">
+          Your health dashboard is ready for the next feature.
+        </p>
+      </header>
+
+      <section className="summary-card">
+        <p className="summary-card-label">Frontend status</p>
+        <p className="summary-card-value">Base styles applied</p>
+      </section>
     </main>
   );
 }
