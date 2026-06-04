@@ -1,4 +1,10 @@
 package cwnu.healthcare.domain.dashboard.dto;
 
-public class DashboardStatsDto {
+public record DashboardStatsDto(
+        int intakeCalories,
+        int burnedCalories,
+        int exerciseMinutes,
+        int targetCalories,
+        int calorieBalance
+) {
 }
