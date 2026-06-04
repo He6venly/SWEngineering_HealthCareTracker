@@ -11,6 +11,9 @@
 - `MONGODB_URI`: MongoDB 연결 URI
 - `JWT_SECRET`: JWT 서명 키
 - `JWT_VALIDITY_IN_SECONDS`: JWT 만료 시간, 기본값 `86400`
+- `LLM_PROVIDER`: `rule` 또는 `gemini`, 기본값 `rule`
+- `GEMINI_API_KEY`: Gemini API 키
+- `GEMINI_MODEL`: Gemini 모델명, 기본값 `gemini-2.5-flash`
 
 참고:
 - 예시는 `CWNU14_HealthCare/.env.example`에 있음
