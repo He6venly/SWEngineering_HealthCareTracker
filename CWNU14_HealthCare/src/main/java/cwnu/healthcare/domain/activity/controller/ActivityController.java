@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/activities")
+@RequestMapping("/api/v1/activities")
 public class ActivityController {
 
     private final ActivityService activityService;
