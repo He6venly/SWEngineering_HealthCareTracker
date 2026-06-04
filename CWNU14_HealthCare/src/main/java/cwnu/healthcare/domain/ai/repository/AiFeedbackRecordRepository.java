@@ -1,4 +1,11 @@
 package cwnu.healthcare.domain.ai.repository;
 
-public interface AiFeedbackRecordRepository {
+import cwnu.healthcare.domain.ai.document.AiFeedbackRecord;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
+
+public interface AiFeedbackRecordRepository extends MongoRepository<AiFeedbackRecord, String> {
+
+    List<AiFeedbackRecord> findByUserIdOrderByTargetDateDesc(String userId);
 }
