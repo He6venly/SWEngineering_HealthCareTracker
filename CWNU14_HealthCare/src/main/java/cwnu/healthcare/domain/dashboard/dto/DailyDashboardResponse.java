@@ -1,4 +1,9 @@
 package cwnu.healthcare.domain.dashboard.dto;
 
-public class DailyDashboardResponse {
+import java.time.LocalDate;
+
+public record DailyDashboardResponse(
+        LocalDate date,
+        DashboardStatsDto stats
+) {
 }
