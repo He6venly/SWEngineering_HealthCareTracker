@@ -1,0 +1,105 @@
+@baseUrl = http://localhost:8080
+@accessToken = paste-access-token-here
+@today = 2026-06-05
+
+### Signup
+POST {{baseUrl}}/api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "email": "tester@example.com",
+  "password": "password1234",
+  "nickname": "tester",
+  "dataConsentAgreed": true
+}
+
+### Login
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "tester@example.com",
+  "password": "password1234"
+}
+
+### Current user
+GET {{baseUrl}}/api/v1/users/me
+Authorization: Bearer {{accessToken}}
+
+### Update profile
+PUT {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "height": 175.0,
+  "weight": 70.0,
+  "targetCalories": 2200,
+  "targetWeight": 68.0
+}
+
+### Get profile
+GET {{baseUrl}}/api/v1/profile
+Authorization: Bearer {{accessToken}}
+
+### Add diet
+POST {{baseUrl}}/api/v1/activities/diets
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "mealType": "LUNCH",
+  "foodName": "chicken salad",
+  "calories": 520,
+  "recordDate": "{{today}}"
+}
+
+### Add exercise
+POST {{baseUrl}}/api/v1/activities/exercises
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "exerciseName": "running",
+  "durationMinutes": 30,
+  "caloriesBurned": 250,
+  "source": "MANUAL",
+  "recordDate": "{{today}}"
+}
+
+### Get activities
+GET {{baseUrl}}/api/v1/activities?date={{today}}
+Authorization: Bearer {{accessToken}}
+
+### Daily dashboard
+GET {{baseUrl}}/api/v1/dashboard/daily?date={{today}}
+Authorization: Bearer {{accessToken}}
+
+### Weekly dashboard
+GET {{baseUrl}}/api/v1/dashboard/weekly?startDate=2026-06-01
+Authorization: Bearer {{accessToken}}
+
+### Generate AI feedback
+POST {{baseUrl}}/api/v1/ai/feedback
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "targetDate": "{{today}}"
+}
+
+### AI feedback history
+GET {{baseUrl}}/api/v1/ai/feedback/history
+Authorization: Bearer {{accessToken}}
+
+### Wearable simulation
+POST {{baseUrl}}/api/v1/simulation/wearable
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "stepCount": 8500,
+  "averageHeartRate": 115,
+  "durationMinutes": 45,
+  "recordDate": "{{today}}"
+}
