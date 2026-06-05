@@ -25,3 +25,27 @@
 cd CWNU14_HealthCare
 .\gradlew.bat bootRun
 ```
+
+## 프론트 연동 기준
+
+- 백엔드 기본 주소: `http://localhost:8080`
+- 프론트 개발 서버: `http://localhost:5173`
+- CORS 허용 origin: `http://localhost:5173`, `http://127.0.0.1:5173`
+- API 예시: `docs/api-examples.http`
+
+인증이 필요한 API는 로그인 응답의 `accessToken`을 아래 형식으로 전달한다.
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+공통 응답 형식:
+
+```json
+{
+  "status": 200,
+  "message": "요청이 성공적으로 처리되었습니다.",
+  "errorCode": null,
+  "data": {}
+}
+```
