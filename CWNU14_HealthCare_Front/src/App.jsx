@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { clearAccessToken, hasAccessToken } from './api/client.js';
 import AppLayout from './components/AppLayout.jsx';
+import ActivityForm from './pages/ActivityForm.jsx';
 import Login from './pages/Login.jsx';
 import Profile from './pages/Profile.jsx';
 import Signup from './pages/Signup.jsx';
@@ -38,6 +39,10 @@ function App() {
   };
 
   const renderActiveTab = () => {
+    if (activeTab === 'records') {
+      return <ActivityForm />;
+    }
+
     if (activeTab === 'profile') {
       return <Profile />;
     }

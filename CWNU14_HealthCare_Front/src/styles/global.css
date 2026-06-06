@@ -71,7 +71,8 @@ button {
   font-weight: 700;
 }
 
-.form-field input {
+.form-field input,
+.form-field select {
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
@@ -81,7 +82,8 @@ button {
   color: #202124;
 }
 
-.form-field input:focus {
+.form-field input:focus,
+.form-field select:focus {
   border-color: #147d64;
   outline: 3px solid #d9f0e9;
 }
@@ -259,6 +261,56 @@ button {
   gap: 16px;
 }
 
+.record-summary-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.metric-card {
+  padding: 18px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.activity-list {
+  display: grid;
+  gap: 12px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid #eef1f3;
+}
+
+.activity-item:first-child {
+  border-top: 0;
+}
+
+.activity-item-title {
+  margin: 0;
+  color: #202124;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.activity-item-meta {
+  margin: 6px 0 0;
+  color: #687076;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.activity-item strong {
+  flex: 0 0 auto;
+  color: #147d64;
+  font-size: 14px;
+}
+
 .bottom-navigation {
   position: fixed;
   right: 0;
@@ -307,6 +359,10 @@ button {
   }
 
   .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .record-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
