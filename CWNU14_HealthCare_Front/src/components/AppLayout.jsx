@@ -7,12 +7,17 @@ const tabs = [
   { id: 'profile', label: 'Profile', icon: UserRound },
 ];
 
-function AppLayout({ activeTab, children, onTabChange }) {
+function AppLayout({ activeTab, children, onLogout, onTabChange }) {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <p className="app-eyebrow">Health tracker</p>
-        <h1 className="app-title">CWNU14 HealthCare</h1>
+        <div>
+          <p className="app-eyebrow">Health tracker</p>
+          <h1 className="app-title">CWNU14 HealthCare</h1>
+        </div>
+        <button className="header-action" onClick={onLogout} type="button">
+          Logout
+        </button>
       </header>
 
       <main className="app-content">{children}</main>
