@@ -273,6 +273,14 @@ button {
   background: #ffffff;
 }
 
+.metric-card.subtle {
+  background: #f9fbfb;
+}
+
+.record-summary-grid.compact {
+  margin-bottom: 18px;
+}
+
 .activity-list {
   display: grid;
   gap: 12px;
@@ -309,6 +317,44 @@ button {
   flex: 0 0 auto;
   color: #147d64;
   font-size: 14px;
+}
+
+.feedback-item {
+  display: grid;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid #eef1f3;
+}
+
+.feedback-item:first-child {
+  border-top: 0;
+}
+
+.feedback-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feedback-item-header span {
+  color: #899095;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.feedback-summary {
+  margin: 0;
+  color: #687076;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.feedback-text {
+  margin: 0;
+  color: #202124;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .bottom-navigation {
