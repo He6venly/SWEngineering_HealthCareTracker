@@ -5,10 +5,9 @@
 
 필수 환경:
 - JDK 21
-- MongoDB Atlas 개인 클러스터 또는 팀 공용 클러스터
+- MongoDB Atlas 팀 공용 클러스터
 
 환경변수:
-- `MONGODB_URI`: MongoDB 연결 URI
 - `JWT_SECRET`: JWT 서명 키
 - `JWT_VALIDITY_IN_SECONDS`: JWT 만료 시간, 기본값 `86400`
 - `LLM_PROVIDER`: `rule` 또는 `gemini`, 기본값 `rule`
@@ -16,8 +15,8 @@
 - `GEMINI_MODEL`: Gemini 모델명, 기본값 `gemini-2.5-flash`
 
 참고:
-- 예시는 `CWNU14_HealthCare/.env.example`에 있음
-- Spring Boot는 `.env`를 자동으로 읽지 않으므로 Windows 환경변수 또는 Eclipse Run Configuration의 Environment에 직접 등록해야 함
+- MongoDB 연결 URI는 `CWNU14_HealthCare/src/main/resources/application.properties`에 팀 공용 DB로 고정되어 있음
+- Spring Boot는 `.env`를 자동으로 읽지 않으므로 JWT/LLM 설정은 Windows 환경변수 또는 Eclipse Run Configuration의 Environment에 직접 등록해야 함
 
 실행:
 
