@@ -36,19 +36,18 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
   return (
     <section className="auth-card" aria-labelledby="login-title">
       <div className="auth-heading">
-        <p className="app-eyebrow">Welcome back</p>
+        <p className="app-eyebrow">다시 만나서 반가워요</p>
         <h1 id="login-title" className="app-title">
-          Sign in to CWNU14 HealthCare
+          CWNU14 HealthCare 로그인
         </h1>
         <p className="app-summary">
-          Use your account to sync profile, activity records, dashboard stats,
-          and AI feedback.
+          계정으로 로그인하면 프로필, 활동 기록, 대시보드, AI 조언을 이어서 사용할 수 있습니다.
         </p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="form-field">
-          Email
+          이메일
           <input
             autoComplete="email"
             name="email"
@@ -61,7 +60,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
         </label>
 
         <label className="form-field">
-          Password
+          비밀번호
           <input
             autoComplete="current-password"
             name="password"
@@ -76,12 +75,12 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
 
         <button className="primary-button" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Signing in...' : 'Sign in'}
+          {isSubmitting ? '로그인 중...' : '로그인'}
         </button>
       </form>
 
       <button className="text-button" onClick={onSwitchToSignup} type="button">
-        Create a new account
+        새 계정 만들기
       </button>
     </section>
   );

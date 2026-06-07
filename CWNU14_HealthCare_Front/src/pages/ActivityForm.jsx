@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDiet, addExercise, getActivities, syncWearable } from '../api/activity.js';
 
-const today = new Date().toISOString().slice(0, 10);
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+const today = formatLocalDate(new Date());
 
 const emptyDietForm = {
   mealType: 'BREAKFAST',
@@ -20,6 +28,23 @@ const emptyWearableForm = {
   stepCount: '',
   averageHeartRate: '',
   durationMinutes: '',
+};
+
+const activityTypeLabels = {
+  DIET: '식단',
+  EXERCISE: '운동',
+};
+
+const mealTypeLabels = {
+  BREAKFAST: '아침',
+  LUNCH: '점심',
+  DINNER: '저녁',
+  SNACK: '간식',
+};
+
+const sourceLabels = {
+  MANUAL: '직접 입력',
+  WEARABLE: '웨어러블',
 };
 
 function ActivityForm() {
@@ -118,7 +143,7 @@ function ActivityForm() {
         recordDate: selectedDate,
       });
       setDietForm(emptyDietForm);
-      setSuccessMessage('Diet record saved.');
+      setSuccessMessage('식단 기록을 저장했습니다.');
       await loadActivities(selectedDate);
     } catch (error) {
       setErrorMessage(error.message);
@@ -142,7 +167,7 @@ function ActivityForm() {
         recordDate: selectedDate,
       });
       setExerciseForm(emptyExerciseForm);
-      setSuccessMessage('Exercise record saved.');
+      setSuccessMessage('운동 기록을 저장했습니다.');
       await loadActivities(selectedDate);
     } catch (error) {
       setErrorMessage(error.message);
@@ -165,7 +190,7 @@ function ActivityForm() {
         recordDate: selectedDate,
       });
       setWearableForm(emptyWearableForm);
-      setSuccessMessage('Wearable data synced.');
+      setSuccessMessage('웨어러블 데이터를 동기화했습니다.');
       await loadActivities(selectedDate);
     } catch (error) {
       setErrorMessage(error.message);
@@ -177,23 +202,23 @@ function ActivityForm() {
   return (
     <>
       <section className="screen-heading">
-        <p className="screen-heading-label">Records</p>
-        <h2 className="screen-heading-title">Track diet, exercise, and wearable data</h2>
+        <p className="screen-heading-label">기록</p>
+        <h2 className="screen-heading-title">식단, 운동, 웨어러블 기록</h2>
         <p className="app-summary">
-          Record daily intake and activity data for dashboard summaries and AI feedback.
+          하루 식단과 활동 데이터를 기록해 대시보드와 AI 조언에 활용합니다.
         </p>
       </section>
 
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Record date</p>
+            <p className="summary-card-label">기록 날짜</p>
             <h3 className="section-title">{selectedDate}</h3>
           </div>
         </div>
 
         <label className="form-field">
-          Date
+          날짜
           <input
             name="selectedDate"
             onChange={(event) => setSelectedDate(event.target.value)}
@@ -206,43 +231,43 @@ function ActivityForm() {
 
       <section className="record-summary-grid">
         <article className="metric-card">
-          <p className="summary-card-label">Intake</p>
+          <p className="summary-card-label">섭취</p>
           <p className="summary-card-value">{totals.intakeCalories} kcal</p>
-          <p className="form-helper">{totals.dietCount} diet records</p>
+          <p className="form-helper">식단 기록 {totals.dietCount}개</p>
         </article>
         <article className="metric-card">
-          <p className="summary-card-label">Burned</p>
+          <p className="summary-card-label">소모</p>
           <p className="summary-card-value">{totals.burnedCalories} kcal</p>
-          <p className="form-helper">{totals.exerciseCount} exercise records</p>
+          <p className="form-helper">운동 기록 {totals.exerciseCount}개</p>
         </article>
       </section>
 
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Diet</p>
-            <h3 className="section-title">Add meal record</h3>
+            <p className="summary-card-label">식단</p>
+            <h3 className="section-title">식사 기록 추가</h3>
           </div>
         </div>
 
         <form className="profile-form" onSubmit={handleDietSubmit}>
           <div className="form-grid">
             <label className="form-field">
-              Meal type
+              식사 유형
               <select name="mealType" onChange={handleDietChange} value={dietForm.mealType}>
-                <option value="BREAKFAST">Breakfast</option>
-                <option value="LUNCH">Lunch</option>
-                <option value="DINNER">Dinner</option>
-                <option value="SNACK">Snack</option>
+                <option value="BREAKFAST">아침</option>
+                <option value="LUNCH">점심</option>
+                <option value="DINNER">저녁</option>
+                <option value="SNACK">간식</option>
               </select>
             </label>
 
             <label className="form-field">
-              Food name
+              음식 이름
               <input
                 name="foodName"
                 onChange={handleDietChange}
-                placeholder="chicken salad"
+                placeholder="닭가슴살 샐러드"
                 required
                 type="text"
                 value={dietForm.foodName}
@@ -250,7 +275,7 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Calories
+              칼로리
               <input
                 inputMode="numeric"
                 min="1"
@@ -265,7 +290,7 @@ function ActivityForm() {
           </div>
 
           <button className="primary-button" disabled={submittingForm === 'diet'} type="submit">
-            {submittingForm === 'diet' ? 'Saving...' : 'Save diet'}
+            {submittingForm === 'diet' ? '저장 중...' : '식단 저장'}
           </button>
         </form>
       </section>
@@ -273,19 +298,19 @@ function ActivityForm() {
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Exercise</p>
-            <h3 className="section-title">Add workout record</h3>
+            <p className="summary-card-label">운동</p>
+            <h3 className="section-title">운동 기록 추가</h3>
           </div>
         </div>
 
         <form className="profile-form" onSubmit={handleExerciseSubmit}>
           <div className="form-grid">
             <label className="form-field">
-              Exercise name
+              운동 이름
               <input
                 name="exerciseName"
                 onChange={handleExerciseChange}
-                placeholder="running"
+                placeholder="러닝"
                 required
                 type="text"
                 value={exerciseForm.exerciseName}
@@ -293,7 +318,7 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Duration (minutes)
+              운동 시간 (분)
               <input
                 inputMode="numeric"
                 min="1"
@@ -307,7 +332,7 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Calories burned
+              소모 칼로리
               <input
                 inputMode="numeric"
                 min="1"
@@ -321,16 +346,16 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Source
+              출처
               <select name="source" onChange={handleExerciseChange} value={exerciseForm.source}>
-                <option value="MANUAL">Manual</option>
-                <option value="WEARABLE">Wearable</option>
+                <option value="MANUAL">직접 입력</option>
+                <option value="WEARABLE">웨어러블</option>
               </select>
             </label>
           </div>
 
           <button className="primary-button" disabled={submittingForm === 'exercise'} type="submit">
-            {submittingForm === 'exercise' ? 'Saving...' : 'Save exercise'}
+            {submittingForm === 'exercise' ? '저장 중...' : '운동 저장'}
           </button>
         </form>
       </section>
@@ -338,15 +363,15 @@ function ActivityForm() {
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Wearable</p>
-            <h3 className="section-title">Sync simulated wearable data</h3>
+            <p className="summary-card-label">웨어러블</p>
+            <h3 className="section-title">웨어러블 데이터 동기화</h3>
           </div>
         </div>
 
         <form className="profile-form" onSubmit={handleWearableSubmit}>
           <div className="form-grid">
             <label className="form-field">
-              Step count
+              걸음 수
               <input
                 inputMode="numeric"
                 min="0"
@@ -360,7 +385,7 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Average heart rate
+              평균 심박수
               <input
                 inputMode="numeric"
                 min="1"
@@ -374,7 +399,7 @@ function ActivityForm() {
             </label>
 
             <label className="form-field">
-              Duration (minutes)
+              운동 시간 (분)
               <input
                 inputMode="numeric"
                 min="1"
@@ -389,7 +414,7 @@ function ActivityForm() {
           </div>
 
           <button className="primary-button" disabled={submittingForm === 'wearable'} type="submit">
-            {submittingForm === 'wearable' ? 'Syncing...' : 'Sync wearable'}
+            {submittingForm === 'wearable' ? '동기화 중...' : '웨어러블 동기화'}
           </button>
         </form>
       </section>
@@ -397,18 +422,18 @@ function ActivityForm() {
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Daily records</p>
-            <h3 className="section-title">Activity history</h3>
+            <p className="summary-card-label">일일 기록</p>
+            <h3 className="section-title">활동 기록</h3>
           </div>
         </div>
 
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
         {successMessage ? <p className="form-success">{successMessage}</p> : null}
 
-        {isLoading ? <p className="form-helper">Loading records...</p> : null}
+        {isLoading ? <p className="form-helper">기록을 불러오는 중...</p> : null}
 
         {!isLoading && activities.length === 0 ? (
-          <p className="form-helper">No records for this date.</p>
+          <p className="form-helper">선택한 날짜의 기록이 없습니다.</p>
         ) : null}
 
         <div className="activity-list">
@@ -417,10 +442,10 @@ function ActivityForm() {
               <div>
                 <p className="activity-item-title">{activity.name}</p>
                 <p className="activity-item-meta">
-                  {activity.type}
-                  {activity.mealType ? ` · ${activity.mealType}` : ''}
-                  {activity.source ? ` · ${activity.source}` : ''}
-                  {activity.durationMinutes ? ` · ${activity.durationMinutes} min` : ''}
+                  {activityTypeLabels[activity.type] ?? activity.type}
+                  {activity.mealType ? ` · ${mealTypeLabels[activity.mealType] ?? activity.mealType}` : ''}
+                  {activity.source ? ` · ${sourceLabels[activity.source] ?? activity.source}` : ''}
+                  {activity.durationMinutes ? ` · ${activity.durationMinutes}분` : ''}
                 </p>
               </div>
               <strong>{activity.calories} kcal</strong>

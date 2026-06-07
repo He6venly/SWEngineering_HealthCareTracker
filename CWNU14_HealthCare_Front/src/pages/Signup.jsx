@@ -37,19 +37,23 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
 
   return (
     <section className="auth-card" aria-labelledby="signup-title">
+      <button className="text-button align-start" onClick={onSwitchToLogin} type="button">
+        로그인으로 돌아가기
+      </button>
+
       <div className="auth-heading">
-        <p className="app-eyebrow">Start tracking</p>
+        <p className="app-eyebrow">건강 기록 시작하기</p>
         <h1 id="signup-title" className="app-title">
-          Create your account
+          회원가입
         </h1>
         <p className="app-summary">
-          Profile and activity data will be connected after sign in.
+          가입 후 프로필과 활동 기록을 연결해 건강 상태를 확인할 수 있습니다.
         </p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <label className="form-field">
-          Email
+          이메일
           <input
             autoComplete="email"
             name="email"
@@ -62,7 +66,7 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
         </label>
 
         <label className="form-field">
-          Password
+          비밀번호
           <input
             autoComplete="new-password"
             name="password"
@@ -75,7 +79,7 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
         </label>
 
         <label className="form-field">
-          Nickname
+          닉네임
           <input
             autoComplete="nickname"
             name="nickname"
@@ -95,18 +99,18 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
             required
             type="checkbox"
           />
-          <span>I agree to data collection and use.</span>
+          <span>개인 건강 데이터 수집 및 이용에 동의합니다.</span>
         </label>
 
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
 
         <button className="primary-button" disabled={isSubmitting} type="submit">
-          {isSubmitting ? 'Creating account...' : 'Create account'}
+          {isSubmitting ? '가입 중...' : '회원가입'}
         </button>
       </form>
 
       <button className="text-button" onClick={onSwitchToLogin} type="button">
-        Already have an account
+        이미 계정이 있습니다
       </button>
     </section>
   );
