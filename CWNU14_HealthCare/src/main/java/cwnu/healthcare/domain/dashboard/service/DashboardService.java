@@ -34,8 +34,8 @@ public class DashboardService {
 
     public WeeklyDashboardResponse getWeeklySummary(String userId, LocalDate startDate) {
         LocalDate endDate = startDate.plusDays(6);
-        List<DietRecord> diets = dietRecordRepository.findByUserIdAndRecordDateBetween(userId, startDate, endDate);
-        List<ExerciseRecord> exercises = exerciseRecordRepository.findByUserIdAndRecordDateBetween(userId, startDate, endDate);
+        List<DietRecord> diets = dietRecordRepository.findByUserIdAndRecordDateRange(userId, startDate, endDate);
+        List<ExerciseRecord> exercises = exerciseRecordRepository.findByUserIdAndRecordDateRange(userId, startDate, endDate);
 
         Map<LocalDate, List<DietRecord>> dietsByDate = diets.stream()
                 .collect(Collectors.groupingBy(DietRecord::getRecordDate));
