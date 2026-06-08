@@ -4,6 +4,14 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:808
 );
 const ACCESS_TOKEN_KEY = 'accessToken';
 
+function formatErrorMessage(message) {
+  if (!message) {
+    return '요청 처리 중 오류가 발생했습니다.';
+  }
+
+  return message.replace(/(^|,\s*)[A-Za-z][A-Za-z0-9]*:\s*/g, '$1');
+}
+
 export function getAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -36,7 +44,7 @@ export async function apiRequest(path, options = {}) {
   const isApiSuccess = typeof apiStatus === 'number' && apiStatus >= 200 && apiStatus < 300;
 
   if (!response.ok || !isApiSuccess) {
-    const error = new Error(data?.message || 'API request failed.');
+    const error = new Error(formatErrorMessage(data?.message));
     error.httpStatus = response.status;
     error.apiStatus = apiStatus;
     error.errorCode = data?.errorCode;

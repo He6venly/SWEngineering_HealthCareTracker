@@ -47,6 +47,32 @@ const sourceLabels = {
   WEARABLE: '웨어러블',
 };
 
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function createWearableSample() {
+  return {
+    stepCount: String(randomInt(6000, 12000)),
+    averageHeartRate: String(randomInt(95, 145)),
+    durationMinutes: String(randomInt(25, 70)),
+  };
+}
+
+function estimateWearableCalories({ stepCount, averageHeartRate, durationMinutes }) {
+  const steps = Number(stepCount);
+  const heartRate = Number(averageHeartRate);
+  const minutes = Number(durationMinutes);
+
+  if (!steps || !heartRate || !minutes) {
+    return 0;
+  }
+
+  const heartRateIntensity = Math.min(8, Math.max(0, Math.floor((heartRate - 90) / 10)));
+
+  return Math.max(1, Math.round(steps / 50 + minutes * (3 + heartRateIntensity)));
+}
+
 function ActivityForm() {
   const [selectedDate, setSelectedDate] = useState(today);
   const [activities, setActivities] = useState([]);
@@ -55,8 +81,14 @@ function ActivityForm() {
   const [wearableForm, setWearableForm] = useState(emptyWearableForm);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [lastWearableSync, setLastWearableSync] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submittingForm, setSubmittingForm] = useState('');
+
+  const estimatedWearableCalories = estimateWearableCalories(wearableForm);
+  const hasWearableData = Boolean(
+    wearableForm.stepCount && wearableForm.averageHeartRate && wearableForm.durationMinutes,
+  );
 
   const totals = useMemo(() => {
     return activities.reduce(
@@ -120,13 +152,11 @@ function ActivityForm() {
     }));
   };
 
-  const handleWearableChange = (event) => {
-    const { name, value } = event.target;
-
-    setWearableForm((currentForm) => ({
-      ...currentForm,
-      [name]: value,
-    }));
+  const handleGenerateWearableSample = () => {
+    setWearableForm(createWearableSample());
+    setLastWearableSync(null);
+    setSuccessMessage('');
+    setErrorMessage('');
   };
 
   const handleDietSubmit = async (event) => {
@@ -180,17 +210,24 @@ function ActivityForm() {
     event.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
+
+    if (!hasWearableData) {
+      setErrorMessage('먼저 기기 데이터 불러오기를 눌러 웨어러블 데이터를 가져와 주세요.');
+      return;
+    }
+
     setSubmittingForm('wearable');
 
     try {
-      await syncWearable({
+      const syncResult = await syncWearable({
         stepCount: Number(wearableForm.stepCount),
         averageHeartRate: Number(wearableForm.averageHeartRate),
         durationMinutes: Number(wearableForm.durationMinutes),
         recordDate: selectedDate,
       });
       setWearableForm(emptyWearableForm);
-      setSuccessMessage('웨어러블 데이터를 동기화했습니다.');
+      setLastWearableSync(syncResult);
+      setSuccessMessage(`웨어러블 원시 데이터를 운동 기록으로 변환했습니다. 소모 칼로리 ${syncResult.processedCaloriesBurned} kcal`);
       await loadActivities(selectedDate);
     } catch (error) {
       setErrorMessage(error.message);
@@ -366,7 +403,14 @@ function ActivityForm() {
             <p className="summary-card-label">웨어러블</p>
             <h3 className="section-title">웨어러블 데이터 동기화</h3>
           </div>
+          <button className="secondary-button" onClick={handleGenerateWearableSample} type="button">
+            기기 데이터 불러오기
+          </button>
         </div>
+
+        <p className="form-helper">
+          기기에서 수집된 걸음 수/심박수/시간을 불러오고, 서버가 소모 칼로리를 계산해 운동 기록으로 변환합니다.
+        </p>
 
         <form className="profile-form" onSubmit={handleWearableSubmit}>
           <div className="form-grid">
@@ -376,8 +420,8 @@ function ActivityForm() {
                 inputMode="numeric"
                 min="0"
                 name="stepCount"
-                onChange={handleWearableChange}
-                placeholder="8500"
+                placeholder="기기 데이터 불러오기"
+                readOnly
                 required
                 type="number"
                 value={wearableForm.stepCount}
@@ -390,8 +434,8 @@ function ActivityForm() {
                 inputMode="numeric"
                 min="1"
                 name="averageHeartRate"
-                onChange={handleWearableChange}
-                placeholder="115"
+                placeholder="기기 데이터 불러오기"
+                readOnly
                 required
                 type="number"
                 value={wearableForm.averageHeartRate}
@@ -404,8 +448,8 @@ function ActivityForm() {
                 inputMode="numeric"
                 min="1"
                 name="durationMinutes"
-                onChange={handleWearableChange}
-                placeholder="45"
+                placeholder="기기 데이터 불러오기"
+                readOnly
                 required
                 type="number"
                 value={wearableForm.durationMinutes}
@@ -413,10 +457,26 @@ function ActivityForm() {
             </label>
           </div>
 
-          <button className="primary-button" disabled={submittingForm === 'wearable'} type="submit">
+          <div className="wearable-preview">
+            <p className="summary-card-label">서버 변환 미리보기</p>
+            <p className="activity-item-meta">
+              원시 데이터 저장 → 소모 칼로리 약 {estimatedWearableCalories} kcal 계산 → 출처 WEARABLE 운동 기록 생성
+            </p>
+          </div>
+
+          <button className="primary-button" disabled={submittingForm === 'wearable' || !hasWearableData} type="submit">
             {submittingForm === 'wearable' ? '동기화 중...' : '웨어러블 동기화'}
           </button>
         </form>
+
+        {lastWearableSync ? (
+          <div className="wearable-preview">
+            <p className="summary-card-label">마지막 동기화 결과</p>
+            <p className="activity-item-meta">
+              {lastWearableSync.recordDate} · {lastWearableSync.durationMinutes}분 · {lastWearableSync.processedCaloriesBurned} kcal · 운동 기록 ID {lastWearableSync.exerciseRecordId}
+            </p>
+          </div>
+        ) : null}
       </section>
 
       <section className="summary-card">

@@ -71,7 +71,7 @@ function AiAdvice() {
     setIsGenerating(true);
 
     try {
-      const feedback = await generateAiFeedback(targetDate);
+      const feedback = await generateAiFeedback(targetDate, prompt);
       const assistantMessage = {
         id: `assistant-${feedback.feedbackId ?? Date.now()}`,
         role: 'assistant',
@@ -197,6 +197,7 @@ function AiAdvice() {
                 <span>{feedback.createdAt?.slice(0, 10)}</span>
               </div>
               <p className="feedback-summary">{feedback.summary}</p>
+              {feedback.userPrompt ? <p className="feedback-question">질문: {feedback.userPrompt}</p> : null}
               <p className="feedback-text">{feedback.feedbackText}</p>
             </article>
           ))}
