@@ -33,3 +33,12 @@ export async function getCurrentUser() {
 
   return response.data.data;
 }
+
+export async function updateCurrentUser({ nickname }) {
+  const response = await apiRequest('/api/v1/users/me', {
+    method: 'PATCH',
+    body: JSON.stringify({ nickname }),
+  });
+
+  return response.data.data;
+}

@@ -13,6 +13,7 @@
 - `LLM_PROVIDER`: `rule` 또는 `gemini`, 기본값 `rule`
 - `GEMINI_API_KEY`: Gemini API 키
 - `GEMINI_MODEL`: Gemini 모델명, 기본값 `gemini-2.5-flash`
+- `GEMINI_FALLBACK_MODELS`: Gemini 장애 시 재시도할 모델 목록, 기본값 `gemini-2.5-flash,gemini-2.0-flash,gemini-flash-latest`
 
 참고:
 - MongoDB 연결 URI는 `CWNU14_HealthCare/src/main/resources/application.properties`에 팀 공용 DB로 고정되어 있음

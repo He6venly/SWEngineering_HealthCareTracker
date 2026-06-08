@@ -439,9 +439,9 @@ button {
   display: grid;
   gap: 14px;
   min-height: 320px;
-  max-height: 520px;
-  overflow-y: auto;
-  padding: 4px;
+  max-height: none;
+  overflow: visible;
+  padding: 4px 4px 10px;
 }
 
 .chat-message {
@@ -738,8 +738,26 @@ body {
   place-items: center;
   min-height: 118px;
   border-radius: 8px;
-  background: #17201c;
+  background: linear-gradient(135deg, #17201c, #2f3f3a);
   color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-visual.neutral {
+  background: linear-gradient(135deg, #2f3f3a, #56645f);
+}
+
+.hero-visual.balanced {
+  background: linear-gradient(135deg, #147d64, #0f6c8f);
+}
+
+.hero-visual.close {
+  background: linear-gradient(135deg, #d98922, #b85f1f);
+}
+
+.hero-visual.over {
+  background: linear-gradient(135deg, #c2410c, #9f1239);
 }
 
 .hero-visual strong {
@@ -748,7 +766,7 @@ body {
 }
 
 .hero-visual span {
-  color: #cfe5dc;
+  color: rgba(255, 255, 255, 0.78);
   font-size: 12px;
   font-weight: 800;
 }
@@ -922,6 +940,21 @@ body {
 .inline-action {
   justify-self: start;
   margin-top: 2px;
+}
+
+.conversation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.danger-action {
+  color: #b42318;
+}
+
+.danger-action:hover {
+  border-color: #f4b6ad;
+  color: #b42318;
 }
 
 .welcome-overlay {
