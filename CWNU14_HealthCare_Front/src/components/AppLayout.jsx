@@ -1,21 +1,38 @@
-import { Bot, ChartNoAxesCombined, ClipboardList, UserRound } from 'lucide-react';
+import {
+  Bot,
+  ChartNoAxesCombined,
+  ClipboardList,
+  HeartPulse,
+  LogOut,
+  UserRound,
+} from 'lucide-react';
 
 const tabs = [
   { id: 'home', label: '홈', icon: ChartNoAxesCombined },
   { id: 'records', label: '기록', icon: ClipboardList },
-  { id: 'advice', label: 'AI 조언', icon: Bot },
+  { id: 'advice', label: 'AI 코치', icon: Bot },
   { id: 'profile', label: '프로필', icon: UserRound },
 ];
 
-function AppLayout({ activeTab, children, onLogout, onTabChange }) {
+function AppLayout({ activeTab, children, currentUser, onLogout, onTabChange }) {
+  const nickname = currentUser?.nickname;
+
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div>
-          <p className="app-eyebrow">건강 관리</p>
-          <h1 className="app-title">CWNU14 HealthCare</h1>
+        <div className="brand-block">
+          <div className="brand-mark" aria-hidden="true">
+            <HeartPulse size={22} strokeWidth={2.4} />
+          </div>
+          <div>
+            <p className="app-eyebrow">CWNU 헬스케어</p>
+            <h1 className="app-title">
+              {nickname ? `${nickname}님, 반갑습니다` : '건강 루틴을 시작해볼까요?'}
+            </h1>
+          </div>
         </div>
         <button className="header-action" onClick={onLogout} type="button">
+          <LogOut aria-hidden="true" size={15} />
           로그아웃
         </button>
       </header>
