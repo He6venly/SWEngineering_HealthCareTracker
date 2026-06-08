@@ -25,14 +25,17 @@ public class AiFeedbackRecord extends BaseDocument {
     @Indexed
     private LocalDate targetDate;
 
+    private String userPrompt;
+
     private String summary;
 
     private String feedbackText;
 
     @Builder
-    public AiFeedbackRecord(String userId, LocalDate targetDate, String summary, String feedbackText) {
+    public AiFeedbackRecord(String userId, LocalDate targetDate, String userPrompt, String summary, String feedbackText) {
         this.userId = userId;
         this.targetDate = targetDate;
+        this.userPrompt = userPrompt;
         this.summary = summary;
         this.feedbackText = feedbackText;
     }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public record AiFeedbackResponse(
         String feedbackId,
         LocalDate targetDate,
+        String userPrompt,
         String summary,
         String feedbackText,
         LocalDateTime createdAt

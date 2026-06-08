@@ -33,7 +33,7 @@ public class WearableSimulationService {
         rawWearableDataRepository.save(rawWearableData);
 
         ExerciseRecordRequest exerciseRequest = ExerciseRecordRequest.builder()
-                .exerciseName("Wearable Sync Exercise")
+                .exerciseName("웨어러블 자동 동기화")
                 .durationMinutes(request.getDurationMinutes())
                 .caloriesBurned(caloriesBurned)
                 .source(ExerciseSource.WEARABLE)
@@ -52,6 +52,9 @@ public class WearableSimulationService {
     }
 
     private int calculateCaloriesBurned(WearableSimulationRequest request) {
-        return Math.max(1, request.getStepCount() / 20 + request.getDurationMinutes() * 5);
+        int heartRateIntensity = Math.min(8, Math.max(0, (request.getAverageHeartRate() - 90) / 10));
+
+        return Math.max(1, Math.round(request.getStepCount() / 50.0f
+                + request.getDurationMinutes() * (3 + heartRateIntensity)));
     }
 }
