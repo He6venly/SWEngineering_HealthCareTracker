@@ -22,12 +22,14 @@ public class AiFeedbackService {
 
     public AiFeedbackResponse generateFeedback(String userId, AiFeedbackRequest request) {
         DashboardStatsDto stats = dashboardService.getDailyStats(userId, request.targetDate()).stats();
+        String userPrompt = normalizePrompt(request.userPrompt());
         String summary = buildSummary(stats);
-        String feedbackText = llmFeedbackClient.generateFeedback(buildPrompt(summary, stats), stats);
+        String feedbackText = llmFeedbackClient.generateFeedback(buildPrompt(summary, stats, userPrompt), stats);
 
         AiFeedbackRecord record = AiFeedbackRecord.builder()
                 .userId(userId)
                 .targetDate(request.targetDate())
+                .userPrompt(userPrompt)
                 .summary(summary)
                 .feedbackText(feedbackText)
                 .build();
@@ -49,23 +51,34 @@ public class AiFeedbackService {
                 + "분";
     }
 
-    private String buildPrompt(String summary, DashboardStatsDto stats) {
+    private String normalizePrompt(String userPrompt) {
+        if (userPrompt == null || userPrompt.isBlank()) {
+            return "오늘 기록을 기준으로 식단과 운동 조언을 해줘.";
+        }
+
+        return userPrompt.strip();
+    }
+
+    private String buildPrompt(String summary, DashboardStatsDto stats, String userPrompt) {
         return """
                 너는 헬스케어 트래커 앱의 AI 코치다.
                 사용자에게 한국어로 짧고 실용적인 피드백을 제공해라.
                 의학적 진단처럼 말하지 말고, 생활 습관 조언 수준으로만 말해라.
+                사용자 질문에 직접 답해라.
                 2문장 이내로 답해라.
 
+                사용자 질문: %s
                 오늘 요약: %s
                 목표 칼로리: %dkcal
                 칼로리 밸런스: %dkcal
-                """.formatted(summary, stats.targetCalories(), stats.calorieBalance());
+                """.formatted(userPrompt, summary, stats.targetCalories(), stats.calorieBalance());
     }
 
     private AiFeedbackResponse toResponse(AiFeedbackRecord record) {
         return new AiFeedbackResponse(
                 record.getId(),
                 record.getTargetDate(),
+                record.getUserPrompt(),
                 record.getSummary(),
                 record.getFeedbackText(),
                 record.getCreatedAt()

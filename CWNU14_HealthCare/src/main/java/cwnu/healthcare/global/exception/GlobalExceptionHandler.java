@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 		String message = exception.getBindingResult()
 			.getFieldErrors()
 			.stream()
-			.map(error -> error.getField() + ": " + error.getDefaultMessage())
+			.map(error -> error.getDefaultMessage())
 			.collect(Collectors.joining(", "));
 
 		return ResponseEntity

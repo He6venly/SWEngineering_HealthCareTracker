@@ -144,7 +144,7 @@ function AiAdvice() {
     setIsGenerating(true);
 
     try {
-      const feedback = await generateAiFeedback(targetDate);
+      const feedback = await generateAiFeedback(targetDate, prompt);
       const isEmptyData = hasNoHealthData(feedback);
       const assistantMessage = {
         id: `assistant-${feedback.feedbackId ?? Date.now()}`,
@@ -292,6 +292,7 @@ function AiAdvice() {
                 <span>{feedback.createdAt?.slice(0, 10)}</span>
               </div>
               <p className="feedback-summary">{feedback.summary}</p>
+              {feedback.userPrompt ? <p className="feedback-question">질문: {feedback.userPrompt}</p> : null}
               <p className="feedback-text">{feedback.feedbackText}</p>
               <button className="secondary-button inline-action" onClick={() => handleLoadFeedback(feedback)} type="button">
                 <RotateCcw aria-hidden="true" size={15} />
