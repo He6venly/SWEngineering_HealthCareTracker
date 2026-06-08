@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { HeartPulse, ShieldCheck } from 'lucide-react';
 import { login } from '../api/auth.js';
 
 function Login({ onLoginSuccess, onSwitchToSignup }) {
@@ -34,14 +35,36 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
   };
 
   return (
-    <section className="auth-card" aria-labelledby="login-title">
+    <section className="auth-card auth-card-hero" aria-labelledby="login-title">
+      <div className="auth-visual" aria-hidden="true">
+        <div className="auth-visual-header">
+          <HeartPulse size={24} strokeWidth={2.4} />
+          <span>오늘의 건강 체크</span>
+        </div>
+        <div className="mini-chart">
+          <span style={{ height: '42%' }} />
+          <span style={{ height: '68%' }} />
+          <span style={{ height: '54%' }} />
+          <span style={{ height: '82%' }} />
+          <span style={{ height: '60%' }} />
+          <span style={{ height: '74%' }} />
+          <span style={{ height: '88%' }} />
+        </div>
+        <div className="auth-visual-grid single">
+          <span>
+            <ShieldCheck size={16} />
+            AI 코치
+          </span>
+        </div>
+      </div>
+
       <div className="auth-heading">
-        <p className="app-eyebrow">다시 만나서 반가워요</p>
-        <h1 id="login-title" className="app-title">
-          CWNU14 HealthCare 로그인
+        <p className="app-eyebrow">환영합니다</p>
+        <h1 id="login-title" className="app-title auth-title">
+          CWNU 헬스케어에 로그인하세요
         </h1>
         <p className="app-summary">
-          계정으로 로그인하면 프로필, 활동 기록, 대시보드, AI 조언을 이어서 사용할 수 있습니다.
+          식단, 운동, 목표 변화를 한곳에서 기록하고 AI 코치에게 맞춤 조언을 받아보세요.
         </p>
       </div>
 
@@ -52,7 +75,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
             autoComplete="email"
             name="email"
             onChange={handleChange}
-            placeholder="tester@example.com"
+            placeholder="예) sunho@example.com"
             required
             type="email"
             value={form.email}
@@ -65,7 +88,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
             autoComplete="current-password"
             name="password"
             onChange={handleChange}
-            placeholder="password"
+            placeholder="예) password123"
             required
             type="password"
             value={form.password}
@@ -80,7 +103,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       </form>
 
       <button className="text-button" onClick={onSwitchToSignup} type="button">
-        새 계정 만들기
+        처음 오셨나요? 새 계정 만들기
       </button>
     </section>
   );

@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Bot, MessageSquarePlus, RotateCcw, Send, Sparkles } from 'lucide-react';
 import { generateAiFeedback, getAiFeedbackHistory } from '../api/ai.js';
+
+const CHAT_STORAGE_KEY = 'aiCoachMessages';
+const DATE_STORAGE_KEY = 'aiCoachTargetDate';
+const PROMPT_STORAGE_KEY = 'aiCoachDraft';
 
 function formatLocalDate(date) {
   const year = date.getFullYear();
@@ -15,7 +20,7 @@ const defaultPrompt = '오늘 기록을 기준으로 식단과 운동 조언을 
 const suggestedPrompts = [
   '오늘 칼로리 균형을 쉽게 설명해줘.',
   '내 운동량이 충분한지 알려줘.',
-  '내일 실천할 건강 목표를 추천해줘.',
+  '기록이 없을 때 식단을 어떻게 시작하면 좋을까?',
 ];
 
 const initialMessages = [
@@ -23,14 +28,44 @@ const initialMessages = [
     id: 'welcome',
     role: 'assistant',
     content:
-      '안녕하세요. 조언받을 날짜를 고르고 궁금한 내용을 입력해 주세요. 기록된 식단, 운동, 목표 정보를 바탕으로 답변해드릴게요.',
+      '안녕하세요. 조언받을 날짜를 고르고 궁금한 내용을 입력해 주세요. 기록된 식단, 운동, 목표 정보를 바탕으로 답변해드릴게요. 기록이 없는 날이면 먼저 초보자용 기록 방법을 안내해드릴게요.',
   },
 ];
 
+function readStoredJson(key, fallback) {
+  try {
+    const stored = window.localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function hasNoHealthData(feedback) {
+  const text = `${feedback?.summary ?? ''} ${feedback?.feedbackText ?? ''}`;
+  const zeroKcalCount = (text.match(/0\s*kcal/gi) ?? []).length;
+  const hasZeroExercise = /0\s*(분|min)/i.test(text);
+
+  return zeroKcalCount >= 2 && hasZeroExercise;
+}
+
+function buildEmptyDataGuide(targetDate) {
+  return `${targetDate}에는 아직 식단이나 운동 기록이 없습니다.
+
+맞춤 분석은 기록이 쌓인 뒤 더 정확해지지만, 처음 시작할 때는 이렇게 해보세요.
+
+1. 식단은 한 끼마다 음식 이름과 대략적인 칼로리부터 기록하세요.
+2. 접시 기준으로 단백질 1칸, 채소 2칸, 탄수화물 1칸처럼 나누면 시작하기 쉽습니다.
+3. 운동은 걷기 20분처럼 부담 없는 활동부터 기록해도 충분합니다.
+4. 하루 기록을 남긴 뒤 다시 질문하면 그 데이터를 기준으로 더 구체적으로 조언해드릴게요.`;
+}
+
 function AiAdvice() {
-  const [targetDate, setTargetDate] = useState(today);
-  const [messageText, setMessageText] = useState(defaultPrompt);
-  const [messages, setMessages] = useState(initialMessages);
+  const [targetDate, setTargetDate] = useState(() => window.localStorage.getItem(DATE_STORAGE_KEY) ?? today);
+  const [messageText, setMessageText] = useState(
+    () => window.localStorage.getItem(PROMPT_STORAGE_KEY) ?? defaultPrompt,
+  );
+  const [messages, setMessages] = useState(() => readStoredJson(CHAT_STORAGE_KEY, initialMessages));
   const [history, setHistory] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +89,44 @@ function AiAdvice() {
     loadHistory();
   }, []);
 
+  useEffect(() => {
+    window.localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    window.localStorage.setItem(DATE_STORAGE_KEY, targetDate);
+  }, [targetDate]);
+
+  useEffect(() => {
+    window.localStorage.setItem(PROMPT_STORAGE_KEY, messageText);
+  }, [messageText]);
+
+  const handleNewChat = () => {
+    setMessages(initialMessages);
+    setMessageText(defaultPrompt);
+    setErrorMessage('');
+  };
+
+  const handleLoadFeedback = (feedback) => {
+    setTargetDate(feedback.targetDate);
+    setMessages([
+      ...initialMessages,
+      {
+        id: `loaded-user-${feedback.feedbackId}`,
+        role: 'user',
+        content: `${feedback.targetDate} 기록을 다시 보여줘.`,
+        meta: feedback.targetDate,
+      },
+      {
+        id: `loaded-assistant-${feedback.feedbackId}`,
+        role: 'assistant',
+        content: feedback.feedbackText,
+        summary: feedback.summary,
+        meta: feedback.targetDate,
+      },
+    ]);
+  };
+
   const handleGenerate = async (event) => {
     event.preventDefault();
 
@@ -72,11 +145,12 @@ function AiAdvice() {
 
     try {
       const feedback = await generateAiFeedback(targetDate, prompt);
+      const isEmptyData = hasNoHealthData(feedback);
       const assistantMessage = {
         id: `assistant-${feedback.feedbackId ?? Date.now()}`,
         role: 'assistant',
-        content: feedback.feedbackText,
-        summary: feedback.summary,
+        content: isEmptyData ? buildEmptyDataGuide(feedback.targetDate) : feedback.feedbackText,
+        summary: isEmptyData ? '기록된 건강 데이터가 없습니다.' : feedback.summary,
         meta: feedback.targetDate,
       };
 
@@ -100,14 +174,35 @@ function AiAdvice() {
   return (
     <>
       <section className="screen-heading">
-        <p className="screen-heading-label">AI 조언</p>
-        <h2 className="screen-heading-title">건강 코치와 대화하기</h2>
+        <p className="screen-heading-label">AI 코치</p>
+        <h2 className="screen-heading-title">오늘의 기록을 바탕으로 질문해보세요</h2>
         <p className="app-summary">
-          일반 LLM 채팅처럼 질문을 입력하면 선택한 날짜의 건강 기록을 기준으로 답변을 생성합니다.
+          채팅창에 궁금한 점을 입력하면 선택한 날짜의 식단, 운동, 목표 데이터를 기준으로 답변합니다.
         </p>
       </section>
 
       <section className="summary-card chat-card">
+        <div className="chat-card-header">
+          <div className="chat-avatar">
+            <Bot size={22} />
+          </div>
+          <div>
+            <p className="summary-card-label">CWNU 헬스케어 AI 코치</p>
+            <h3 className="section-title">맞춤 건강 상담</h3>
+          </div>
+          <span className="chat-status">
+            <Sparkles size={14} />
+            기록 기반 답변
+          </span>
+        </div>
+
+        <div className="chat-toolbar">
+          <button className="secondary-button" onClick={handleNewChat} type="button">
+            <MessageSquarePlus aria-hidden="true" size={16} />
+            새 대화
+          </button>
+        </div>
+
         <div className="chat-thread" aria-live="polite">
           {messages.map((message) => (
             <article className={`chat-message ${message.role}`} key={message.id}>
@@ -162,14 +257,14 @@ function AiAdvice() {
             <textarea
               name="messageText"
               onChange={(event) => setMessageText(event.target.value)}
-              placeholder="예: 오늘 기록에서 부족한 점을 알려줘."
+              placeholder="예) 오늘 기록에서 부족한 점을 알려줘."
               rows="3"
               value={messageText}
             />
           </label>
 
           <button className="primary-button chat-send-button" disabled={isGenerating} type="submit">
-            {isGenerating ? '답변 중...' : '전송'}
+            {isGenerating ? '답변 중...' : <><Send aria-hidden="true" size={16} /> 전송</>}
           </button>
         </form>
       </section>
@@ -199,6 +294,10 @@ function AiAdvice() {
               <p className="feedback-summary">{feedback.summary}</p>
               {feedback.userPrompt ? <p className="feedback-question">질문: {feedback.userPrompt}</p> : null}
               <p className="feedback-text">{feedback.feedbackText}</p>
+              <button className="secondary-button inline-action" onClick={() => handleLoadFeedback(feedback)} type="button">
+                <RotateCcw aria-hidden="true" size={15} />
+                이 조언 불러오기
+              </button>
             </article>
           ))}
         </div>
