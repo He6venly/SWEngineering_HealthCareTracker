@@ -49,7 +49,7 @@ function Profile() {
         if (error.errorCode === 'ERR-P001') {
           setProfile(null);
           setForm(emptyForm);
-          setSuccessMessage('Enter your health profile to start tracking goals.');
+          setSuccessMessage('건강 목표 관리를 시작하려면 프로필을 입력해 주세요.');
         } else {
           setErrorMessage(error.message);
         }
@@ -92,7 +92,7 @@ function Profile() {
 
       setProfile(savedProfile);
       setForm(toForm(savedProfile));
-      setSuccessMessage('Profile saved.');
+      setSuccessMessage('프로필을 저장했습니다.');
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -103,28 +103,28 @@ function Profile() {
   return (
     <>
       <section className="screen-heading">
-        <p className="screen-heading-label">Profile</p>
-        <h2 className="screen-heading-title">Manage your health goals</h2>
+        <p className="screen-heading-label">프로필</p>
+        <h2 className="screen-heading-title">건강 목표 관리</h2>
         <p className="app-summary">
-          Set your body metrics and goals for activity tracking and dashboard summaries.
+          키, 몸무게, 목표 칼로리와 목표 몸무게를 설정해 기록과 대시보드 기준으로 사용합니다.
         </p>
       </section>
 
       <section className="summary-card">
         <div className="section-heading">
           <div>
-            <p className="summary-card-label">Health profile</p>
-            <h3 className="section-title">{profile ? 'Current goals' : 'New profile'}</h3>
+            <p className="summary-card-label">건강 프로필</p>
+            <h3 className="section-title">{profile ? '현재 목표' : '새 프로필'}</h3>
           </div>
         </div>
 
         {isLoading ? (
-          <p className="form-helper">Loading profile...</p>
+          <p className="form-helper">프로필을 불러오는 중...</p>
         ) : (
           <form className="profile-form" onSubmit={handleSubmit}>
             <div className="form-grid">
               <label className="form-field">
-                Height (cm)
+                키 (cm)
                 <input
                   inputMode="decimal"
                   min="1"
@@ -139,7 +139,7 @@ function Profile() {
               </label>
 
               <label className="form-field">
-                Weight (kg)
+                몸무게 (kg)
                 <input
                   inputMode="decimal"
                   min="1"
@@ -154,7 +154,7 @@ function Profile() {
               </label>
 
               <label className="form-field">
-                Target calories
+                목표 칼로리
                 <input
                   inputMode="numeric"
                   min="1"
@@ -169,7 +169,7 @@ function Profile() {
               </label>
 
               <label className="form-field">
-                Target weight (kg)
+                목표 몸무게 (kg)
                 <input
                   inputMode="decimal"
                   min="1"
@@ -188,7 +188,7 @@ function Profile() {
             {successMessage ? <p className="form-success">{successMessage}</p> : null}
 
             <button className="primary-button" disabled={isSubmitting} type="submit">
-              {isSubmitting ? 'Saving...' : 'Save profile'}
+              {isSubmitting ? '저장 중...' : '프로필 저장'}
             </button>
           </form>
         )}

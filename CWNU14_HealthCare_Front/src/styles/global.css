@@ -72,9 +72,9 @@ button {
 }
 
 .form-field input,
-.form-field select {
+.form-field select,
+.chat-text-field textarea {
   width: 100%;
-  min-height: 48px;
   padding: 0 14px;
   border: 1px solid #dce1e5;
   border-radius: 8px;
@@ -82,8 +82,22 @@ button {
   color: #202124;
 }
 
+.form-field input,
+.form-field select {
+  min-height: 48px;
+}
+
+.chat-text-field textarea {
+  min-height: 92px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
 .form-field input:focus,
-.form-field select:focus {
+.form-field select:focus,
+.chat-text-field textarea:focus {
   border-color: #147d64;
   outline: 3px solid #d9f0e9;
 }
@@ -146,6 +160,11 @@ button {
   background: transparent;
   color: #147d64;
   font-weight: 800;
+}
+
+.text-button.align-start {
+  justify-self: start;
+  padding: 0;
 }
 
 .app-shell {
@@ -357,6 +376,122 @@ button {
   line-height: 1.6;
 }
 
+.chat-card {
+  display: grid;
+  gap: 16px;
+}
+
+.chat-thread {
+  display: grid;
+  gap: 14px;
+  min-height: 320px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.chat-message {
+  display: flex;
+}
+
+.chat-message.user {
+  justify-content: flex-end;
+}
+
+.chat-message.assistant {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  width: min(100%, 520px);
+  padding: 14px 16px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+  background: #f9fbfb;
+}
+
+.chat-message.user .chat-bubble {
+  border-color: #b9ded2;
+  background: #eaf7f3;
+}
+
+.chat-bubble p {
+  margin: 0;
+  color: #202124;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.chat-bubble p + p {
+  margin-top: 8px;
+}
+
+.chat-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #147d64 !important;
+  font-size: 12px !important;
+  font-weight: 800;
+}
+
+.chat-meta span {
+  color: #899095;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.prompt-suggestions {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.prompt-chip {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #dce1e5;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #3b4248;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.prompt-chip:hover {
+  border-color: #b9ded2;
+  color: #147d64;
+}
+
+.chat-composer {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-top: 1px solid #eef1f3;
+  border-radius: 8px;
+  background: #f9fbfb;
+}
+
+.chat-date-field {
+  min-width: 0;
+}
+
+.chat-text-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  color: #3b4248;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chat-send-button {
+  align-self: end;
+}
+
 .bottom-navigation {
   position: fixed;
   right: 0;
@@ -410,5 +545,10 @@ button {
 
   .record-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chat-composer {
+    grid-template-columns: 180px minmax(0, 1fr) 88px;
+    align-items: end;
   }
 }
