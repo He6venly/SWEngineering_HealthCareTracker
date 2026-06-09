@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "installCommand": "npm --prefix CWNU14_HealthCare_Front install",
+  "buildCommand": "npm --prefix CWNU14_HealthCare_Front run build",
+  "outputDirectory": "CWNU14_HealthCare_Front/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
