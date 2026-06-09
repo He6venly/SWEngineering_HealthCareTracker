@@ -49,11 +49,9 @@ public class ProfileService {
                         .targetWeight(request.getTargetWeight())
                         .build());
 
-        user.updateNickname(request.getNickname().strip());
-        User savedUser = userRepository.save(user);
         HealthProfile savedProfile = healthProfileRepository.save(profile);
         return HealthProfileUpdateResponse.builder()
-                .user(UserResponse.from(savedUser))
+                .user(UserResponse.from(user))
                 .profile(toResponse(savedProfile))
                 .build();
     }

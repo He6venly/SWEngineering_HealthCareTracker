@@ -42,3 +42,15 @@ export async function updateCurrentUser({ nickname }) {
 
   return response.data.data;
 }
+
+export async function checkEmailAvailability(email) {
+  const response = await apiRequest(`/api/v1/auth/email-availability?email=${encodeURIComponent(email)}`);
+
+  return response.data.data;
+}
+
+export async function deleteCurrentUser() {
+  await apiRequest('/api/v1/users/me', {
+    method: 'DELETE',
+  });
+}

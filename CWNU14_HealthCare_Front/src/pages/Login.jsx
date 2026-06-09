@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HeartPulse, ShieldCheck } from 'lucide-react';
 import { login } from '../api/auth.js';
 import cwnuLogo from '../assets/cwnu-logo.png';
+import healthcareLogo from '../assets/healthcare-logo.png';
 
 function Login({ onLoginSuccess, onSwitchToSignup }) {
   const [form, setForm] = useState({
@@ -9,6 +10,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
     password: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [invalidFields, setInvalidFields] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
@@ -18,6 +20,8 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       ...currentForm,
       [name]: value,
     }));
+    setInvalidFields({});
+    setErrorMessage('');
   };
 
   const handleSubmit = async (event) => {
@@ -30,6 +34,10 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       onLoginSuccess();
     } catch (error) {
       setErrorMessage(error.message);
+      setInvalidFields({
+        email: true,
+        password: true,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -42,14 +50,12 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
           <HeartPulse size={24} strokeWidth={2.4} />
           <span>오늘의 건강 체크</span>
         </div>
-        <div className="mini-chart">
-          <span style={{ height: '42%' }} />
-          <span style={{ height: '68%' }} />
-          <span style={{ height: '54%' }} />
-          <span style={{ height: '82%' }} />
-          <span style={{ height: '60%' }} />
-          <span style={{ height: '74%' }} />
-          <span style={{ height: '88%' }} />
+        <div className="auth-wellness-visual">
+          <div className="auth-brand-row">
+            <img alt="국립창원대학교" className="auth-brand-cwnu" src={cwnuLogo} />
+            <span className="auth-brand-divider" />
+            <img alt="헬스케어" className="auth-brand-healthcare" src={healthcareLogo} />
+          </div>
         </div>
         <div className="auth-visual-grid single">
           <span>
@@ -60,9 +66,6 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       </div>
 
       <div className="auth-heading">
-        <div className="auth-logo-strip">
-          <img alt="국립창원대학교" src={cwnuLogo} />
-        </div>
         <p className="app-eyebrow">환영합니다</p>
         <h1 id="login-title" className="app-title auth-title">
           CWNU 헬스케어에 로그인하세요
@@ -77,6 +80,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
           이메일
           <input
             autoComplete="email"
+            className={invalidFields.email ? 'is-invalid' : ''}
             name="email"
             onChange={handleChange}
             placeholder="예) sunho@example.com"
@@ -90,9 +94,9 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
           비밀번호
           <input
             autoComplete="current-password"
+            className={invalidFields.password ? 'is-invalid' : ''}
             name="password"
             onChange={handleChange}
-            placeholder="예) password123"
             required
             type="password"
             value={form.password}
@@ -107,7 +111,8 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       </form>
 
       <button className="text-button" onClick={onSwitchToSignup} type="button">
-        처음 오셨나요? 새 계정 만들기
+        <span>처음 오셨나요?</span>
+        <strong>회원가입하기</strong>
       </button>
     </section>
   );

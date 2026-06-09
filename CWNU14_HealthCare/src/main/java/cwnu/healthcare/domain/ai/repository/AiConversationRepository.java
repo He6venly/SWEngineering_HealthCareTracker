@@ -11,4 +11,6 @@ public interface AiConversationRepository extends MongoRepository<AiConversation
     List<AiConversation> findTop20ByUserIdOrderByUpdatedAtDesc(String userId);
 
     Optional<AiConversation> findByIdAndUserId(String id, String userId);
+
+    void deleteByUserId(String userId);
 }

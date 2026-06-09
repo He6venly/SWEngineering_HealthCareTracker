@@ -2,13 +2,16 @@ package cwnu.healthcare.domain.user.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cwnu.healthcare.domain.user.dto.LoginRequest;
 import cwnu.healthcare.domain.user.dto.LoginResponse;
+import cwnu.healthcare.domain.user.dto.EmailAvailabilityResponse;
 import cwnu.healthcare.domain.user.dto.SignupRequest;
 import cwnu.healthcare.domain.user.dto.UserResponse;
 import cwnu.healthcare.domain.user.service.AuthService;
@@ -36,5 +39,10 @@ public class AuthController {
 	@PostMapping("/login")
 	public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
 		return ApiResponse.success(authService.login(request));
+	}
+
+	@GetMapping("/email-availability")
+	public ApiResponse<EmailAvailabilityResponse> checkEmailAvailability(@RequestParam String email) {
+		return ApiResponse.success(authService.checkEmailAvailability(email));
 	}
 }

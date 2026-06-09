@@ -12,4 +12,6 @@ public interface RawWearableDataRepository extends MongoRepository<RawWearableDa
     List<RawWearableData> findByUserIdAndRecordDate(String userId, LocalDate recordDate);
 
     Optional<RawWearableData> findTopByUserIdOrderByCreatedAtDesc(String userId);
+
+    void deleteByUserId(String userId);
 }

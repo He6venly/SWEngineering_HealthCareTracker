@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cwnu.healthcare.domain.user.document.User;
+import cwnu.healthcare.domain.user.dto.EmailAvailabilityResponse;
 import cwnu.healthcare.domain.user.dto.LoginRequest;
 import cwnu.healthcare.domain.user.dto.LoginResponse;
 import cwnu.healthcare.domain.user.dto.SignupRequest;
@@ -45,6 +46,10 @@ public class AuthService {
 		);
 
 		return UserResponse.from(userRepository.save(user));
+	}
+
+	public EmailAvailabilityResponse checkEmailAvailability(String email) {
+		return new EmailAvailabilityResponse(!userRepository.existsByEmail(email));
 	}
 
 	public LoginResponse login(LoginRequest request) {
