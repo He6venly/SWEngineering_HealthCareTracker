@@ -11,6 +11,8 @@ public interface ExerciseRecordRepository extends MongoRepository<ExerciseRecord
 
     List<ExerciseRecord> findByUserIdAndRecordDate(String userId, LocalDate recordDate);
 
+    void deleteByUserId(String userId);
+
     @Query("{ 'userId': ?0, 'recordDate': { $gte: ?1, $lte: ?2 } }")
     List<ExerciseRecord> findByUserIdAndRecordDateRange(
             String userId,

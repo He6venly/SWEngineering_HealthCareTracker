@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import { deleteCurrentUser, updateCurrentUser } from '../api/auth.js';
 import { getProfile, updateProfile } from '../api/profile.js';
 
 const emptyForm = {
-  nickname: '',
   height: '',
   weight: '',
   targetCalories: '',
@@ -11,7 +11,6 @@ const emptyForm = {
 
 function toForm(profile, user) {
   return {
-    nickname: user?.nickname ?? '',
     height: profile?.height?.toString() ?? '',
     weight: profile?.weight?.toString() ?? '',
     targetCalories: profile?.targetCalories?.toString() ?? '',
@@ -25,8 +24,10 @@ function Profile({
   isRequired = false,
   onProfileSaved,
   onUserUpdated,
+  onAccountDeleted,
 }) {
   const [form, setForm] = useState(() => toForm(initialProfile, currentUser));
+  const [nicknameInput, setNicknameInput] = useState(currentUser?.nickname ?? '');
   const [profile, setProfile] = useState(initialProfile);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState(
@@ -34,13 +35,14 @@ function Profile({
   );
   const [isLoading, setIsLoading] = useState(!initialProfile && !isRequired);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(false);
+  const [isSavingNickname, setIsSavingNickname] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const nickname = currentUser?.nickname ?? '';
 
   useEffect(() => {
-    setForm((currentForm) => ({
-      ...currentForm,
-      nickname,
-    }));
+    setNicknameInput(nickname);
   }, [nickname]);
 
   useEffect(() => {
@@ -114,7 +116,6 @@ function Profile({
 
     try {
       const savedData = await updateProfile({
-        nickname: form.nickname.trim(),
         height: Number(form.height),
         weight: Number(form.weight),
         targetCalories: Number(form.targetCalories),
@@ -135,6 +136,46 @@ function Profile({
     }
   };
 
+  const handleSaveNickname = async () => {
+    const nextNickname = nicknameInput.trim();
+
+    if (!nextNickname) {
+      setErrorMessage('닉네임을 입력해주세요.');
+      return;
+    }
+
+    setIsSavingNickname(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      const updatedUser = await updateCurrentUser({ nickname: nextNickname });
+      onUserUpdated?.(updatedUser);
+      setNicknameInput(updatedUser.nickname);
+      setIsNicknameModalOpen(false);
+      setSuccessMessage('닉네임을 변경했습니다.');
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSavingNickname(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      await deleteCurrentUser();
+      onAccountDeleted?.();
+    } catch (error) {
+      setErrorMessage(error.message);
+      setIsDeletingAccount(false);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   return (
     <>
       <section className="screen-heading">
@@ -143,9 +184,35 @@ function Profile({
           {nickname ? `${nickname}님의 건강 목표` : '건강 목표 관리'}
         </h2>
         <p className="app-summary">
-          이름과 신체 정보를 확인하고, 목표 칼로리와 목표 몸무게를 설정해 맞춤 기록 기준으로
+          닉네임과 신체 정보를 확인하고, 목표 칼로리와 목표 몸무게를 설정해 맞춤 기록 기준으로
           사용합니다.
         </p>
+      </section>
+
+      <section className="summary-card profile-account-card">
+        <div>
+          <p className="summary-card-label">계정 닉네임</p>
+          <h3 className="section-title">{nickname || '닉네임 없음'}</h3>
+        </div>
+        <div className="profile-account-actions">
+          <button
+            className="secondary-button"
+            onClick={() => {
+              setNicknameInput(nickname);
+              setIsNicknameModalOpen(true);
+            }}
+            type="button"
+          >
+            닉네임 변경
+          </button>
+          <button
+            className="danger-button"
+            onClick={() => setIsDeleteModalOpen(true)}
+            type="button"
+          >
+            회원 탈퇴
+          </button>
+        </div>
       </section>
 
       <section className="summary-card">
@@ -161,18 +228,6 @@ function Profile({
         ) : (
           <form className="profile-form" onSubmit={handleSubmit}>
             <div className="form-grid">
-              <label className="form-field">
-                이름
-                <input
-                  name="nickname"
-                  onChange={handleChange}
-                  placeholder="예) 선호"
-                  required
-                  type="text"
-                  value={form.nickname}
-                />
-              </label>
-
               <label className="form-field">
                 키 (cm)
                 <input
@@ -243,6 +298,75 @@ function Profile({
           </form>
         )}
       </section>
+
+      {isNicknameModalOpen ? (
+        <div className="sleep-modal-backdrop" role="presentation">
+          <section className="sleep-modal profile-modal" aria-label="닉네임 변경">
+            <div>
+              <p className="summary-card-label">닉네임 변경</p>
+              <h3 className="section-title">앱에서 표시될 이름을 설정합니다</h3>
+            </div>
+            <label className="form-field">
+              닉네임
+              <input
+                maxLength={30}
+                onChange={(event) => setNicknameInput(event.target.value)}
+                placeholder="예) 선호"
+                type="text"
+                value={nicknameInput}
+              />
+            </label>
+            <div className="sleep-modal-actions">
+              <button
+                className="secondary-button"
+                onClick={() => setIsNicknameModalOpen(false)}
+                type="button"
+              >
+                취소
+              </button>
+              <button
+                className="primary-button"
+                disabled={isSavingNickname}
+                onClick={handleSaveNickname}
+                type="button"
+              >
+                저장
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {isDeleteModalOpen ? (
+        <div className="sleep-modal-backdrop" role="presentation">
+          <section className="sleep-modal profile-modal" aria-label="회원 탈퇴 확인">
+            <div>
+              <p className="summary-card-label danger-text">회원 탈퇴</p>
+              <h3 className="section-title">정말 탈퇴하시겠습니까?</h3>
+              <p className="form-helper">
+                탈퇴하면 계정, 프로필, 식단, 운동, 물, 수면, AI 대화 기록이 DB에서 삭제됩니다.
+              </p>
+            </div>
+            <div className="sleep-modal-actions">
+              <button
+                className="secondary-button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                type="button"
+              >
+                취소
+              </button>
+              <button
+                className="danger-button filled"
+                disabled={isDeletingAccount}
+                onClick={handleDeleteAccount}
+                type="button"
+              >
+                {isDeletingAccount ? '탈퇴 처리 중...' : '탈퇴하기'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }

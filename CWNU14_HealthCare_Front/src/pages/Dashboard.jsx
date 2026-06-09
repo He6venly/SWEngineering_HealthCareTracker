@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, AlarmClock, Bed, Droplets, Flame, Footprints, Gauge, Save, Sparkles, Target } from 'lucide-react';
+import { Activity, AlarmClock, Bed, Droplets, Flame, Footprints, Gauge, Sparkles, Target } from 'lucide-react';
 import { createAiConversation, sendAiConversationMessage } from '../api/ai.js';
 import { getDailyDashboard, getWeeklyDashboard } from '../api/dashboard.js';
 import { addHydrationIntake, saveSleepRecord, updateHydrationTarget } from '../api/wellness.js';

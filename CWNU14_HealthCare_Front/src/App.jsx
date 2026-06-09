@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { clearAccessToken, hasAccessToken } from './api/client.js';
 import { getCurrentUser } from './api/auth.js';
 import { getProfile } from './api/profile.js';
+import cwnuLogo from './assets/cwnu-logo.png';
+import healthcareLogo from './assets/healthcare-logo.png';
 import AppLayout from './components/AppLayout.jsx';
 import ActivityForm from './pages/ActivityForm.jsx';
 import AiAdvice from './pages/AiAdvice.jsx';
@@ -9,6 +11,20 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
 import Profile from './pages/Profile.jsx';
 import Signup from './pages/Signup.jsx';
+
+function BrandWatermark() {
+  const marks = Array.from({ length: 48 }, (_, index) => (index % 2 === 0 ? cwnuLogo : healthcareLogo));
+
+  return (
+    <div className="brand-watermark-grid" aria-hidden="true">
+      {marks.map((logo, index) => (
+        <span className="brand-watermark-cell" key={`${logo}-${index}`}>
+          <img alt="" src={logo} />
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -101,6 +117,10 @@ function App() {
     setAuthView('login');
   };
 
+  const handleAccountDeleted = () => {
+    handleLogout();
+  };
+
   const handleProfileSaved = (profile) => {
     setCurrentProfile(profile);
     setProfileRequired(false);
@@ -141,6 +161,7 @@ function App() {
           isRequired={profileRequired}
           onProfileSaved={handleProfileSaved}
           onUserUpdated={handleUserUpdated}
+          onAccountDeleted={handleAccountDeleted}
         />
       );
     }
@@ -150,24 +171,28 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <main className="auth-shell">
-        {authView === 'login' ? (
-          <Login
-            onLoginSuccess={() => setIsAuthenticated(true)}
-            onSwitchToSignup={() => setAuthView('signup')}
-          />
-        ) : (
-          <Signup
-            onSignupSuccess={() => setAuthView('login')}
-            onSwitchToLogin={() => setAuthView('login')}
-          />
-        )}
-      </main>
+      <>
+        <BrandWatermark />
+        <main className="auth-shell">
+          {authView === 'login' ? (
+            <Login
+              onLoginSuccess={() => setIsAuthenticated(true)}
+              onSwitchToSignup={() => setAuthView('signup')}
+            />
+          ) : (
+            <Signup
+              onSignupSuccess={() => setAuthView('login')}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+          )}
+        </main>
+      </>
     );
   }
 
   return (
     <>
+      <BrandWatermark />
       {showWelcome && currentUser ? (
         <div className="welcome-overlay" aria-live="polite">
           <div className="welcome-panel">

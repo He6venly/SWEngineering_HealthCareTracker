@@ -11,6 +11,8 @@ public interface DietRecordRepository extends MongoRepository<DietRecord, String
 
     List<DietRecord> findByUserIdAndRecordDate(String userId, LocalDate recordDate);
 
+    void deleteByUserId(String userId);
+
     @Query("{ 'userId': ?0, 'recordDate': { $gte: ?1, $lte: ?2 } }")
     List<DietRecord> findByUserIdAndRecordDateRange(
             String userId,

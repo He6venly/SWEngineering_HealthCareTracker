@@ -10,4 +10,6 @@ public interface AiConversationMessageRepository extends MongoRepository<AiConve
     List<AiConversationMessage> findByConversationIdAndUserIdOrderByCreatedAtAsc(String conversationId, String userId);
 
     void deleteByConversationIdAndUserId(String conversationId, String userId);
+
+    void deleteByUserId(String userId);
 }
