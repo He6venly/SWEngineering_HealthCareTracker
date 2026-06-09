@@ -4,6 +4,8 @@ import { login } from '../api/auth.js';
 import cwnuLogo from '../assets/cwnu-logo.png';
 import healthcareLogo from '../assets/healthcare-logo.png';
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Login({ onLoginSuccess, onSwitchToSignup }) {
   const [form, setForm] = useState({
     email: '',
@@ -27,10 +29,30 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrorMessage('');
+
+    const email = form.email.trim();
+    const nextInvalidFields = {};
+
+    if (!email) {
+      nextInvalidFields.email = true;
+      setErrorMessage('이메일을 입력해주세요.');
+    } else if (!EMAIL_PATTERN.test(email)) {
+      nextInvalidFields.email = true;
+      setErrorMessage('이메일 형식이 올바르지 않습니다.');
+    } else if (!form.password) {
+      nextInvalidFields.password = true;
+      setErrorMessage('비밀번호를 입력해주세요.');
+    }
+
+    if (Object.keys(nextInvalidFields).length > 0) {
+      setInvalidFields(nextInvalidFields);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await login(form);
+      await login({ email, password: form.password });
       onLoginSuccess();
     } catch (error) {
       setErrorMessage(error.message);
@@ -75,7 +97,7 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
         </p>
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" noValidate onSubmit={handleSubmit}>
         <label className="form-field">
           이메일
           <input
@@ -84,7 +106,6 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
             name="email"
             onChange={handleChange}
             placeholder="예) sunho@example.com"
-            required
             type="email"
             value={form.email}
           />
@@ -97,7 +118,6 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
             className={invalidFields.password ? 'is-invalid' : ''}
             name="password"
             onChange={handleChange}
-            required
             type="password"
             value={form.password}
           />

@@ -2,23 +2,28 @@ package cwnu.healthcare.domain.user.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cwnu.healthcare.domain.user.dto.EmailAvailabilityResponse;
 import cwnu.healthcare.domain.user.dto.LoginRequest;
 import cwnu.healthcare.domain.user.dto.LoginResponse;
-import cwnu.healthcare.domain.user.dto.EmailAvailabilityResponse;
 import cwnu.healthcare.domain.user.dto.SignupRequest;
 import cwnu.healthcare.domain.user.dto.UserResponse;
 import cwnu.healthcare.domain.user.service.AuthService;
 import cwnu.healthcare.global.common.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
@@ -42,7 +47,13 @@ public class AuthController {
 	}
 
 	@GetMapping("/email-availability")
-	public ApiResponse<EmailAvailabilityResponse> checkEmailAvailability(@RequestParam String email) {
+	public ApiResponse<EmailAvailabilityResponse> checkEmailAvailability(
+		@RequestParam
+		@NotBlank(message = "이메일은 필수입니다.")
+		@Email(message = "이메일 형식이 올바르지 않습니다.")
+		@Pattern(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "이메일 형식이 올바르지 않습니다.")
+		String email
+	) {
 		return ApiResponse.success(authService.checkEmailAvailability(email));
 	}
 }
