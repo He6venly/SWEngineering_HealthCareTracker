@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { checkEmailAvailability, signup } from '../api/auth.js';
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function Signup({ onSignupSuccess, onSwitchToLogin }) {
   const [form, setForm] = useState({
     email: '',
@@ -12,6 +14,7 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [emailCheckStatus, setEmailCheckStatus] = useState('idle');
+  const [invalidFields, setInvalidFields] = useState({});
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isPasswordConfirmFilled = Boolean(form.passwordConfirm);
@@ -27,6 +30,10 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
     }));
     setErrorMessage('');
     setSuccessMessage('');
+    setInvalidFields((currentFields) => ({
+      ...currentFields,
+      [name]: false,
+    }));
 
     if (name === 'email') {
       setEmailCheckStatus('idle');
@@ -34,9 +41,19 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
   };
 
   const handleCheckEmail = async () => {
-    if (!form.email.trim()) {
+    const email = form.email.trim();
+
+    if (!email) {
       setErrorMessage('이메일을 입력해주세요.');
       setEmailCheckStatus('duplicate');
+      setInvalidFields((currentFields) => ({ ...currentFields, email: true }));
+      return;
+    }
+
+    if (!EMAIL_PATTERN.test(email)) {
+      setErrorMessage('이메일 형식이 올바르지 않습니다.');
+      setEmailCheckStatus('duplicate');
+      setInvalidFields((currentFields) => ({ ...currentFields, email: true }));
       return;
     }
 
@@ -45,13 +62,14 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
     setSuccessMessage('');
 
     try {
-      const result = await checkEmailAvailability(form.email.trim());
+      const result = await checkEmailAvailability(email);
 
       if (result.available) {
         setEmailCheckStatus('available');
         setSuccessMessage('사용 가능한 이메일입니다.');
       } else {
         setEmailCheckStatus('duplicate');
+        setInvalidFields((currentFields) => ({ ...currentFields, email: true }));
         setErrorMessage('이미 가입된 이메일입니다.');
       }
     } catch (error) {
@@ -67,6 +85,41 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
     setErrorMessage('');
     setSuccessMessage('');
 
+    const email = form.email.trim();
+    const nickname = form.nickname.trim();
+    const nextInvalidFields = {};
+
+    if (!email) {
+      nextInvalidFields.email = true;
+      setErrorMessage('이메일을 입력해주세요.');
+    } else if (!EMAIL_PATTERN.test(email)) {
+      nextInvalidFields.email = true;
+      setErrorMessage('이메일 형식이 올바르지 않습니다.');
+    } else if (emailCheckStatus !== 'available') {
+      nextInvalidFields.email = true;
+      setErrorMessage('이메일 중복 확인을 먼저 진행해주세요.');
+    } else if (!form.password) {
+      nextInvalidFields.password = true;
+      setErrorMessage('비밀번호를 입력해주세요.');
+    } else if (!form.passwordConfirm) {
+      nextInvalidFields.passwordConfirm = true;
+      setErrorMessage('비밀번호 확인을 입력해주세요.');
+    } else if (form.password !== form.passwordConfirm) {
+      nextInvalidFields.password = true;
+      nextInvalidFields.passwordConfirm = true;
+      setErrorMessage('비밀번호가 일치하지 않습니다.');
+    } else if (!nickname) {
+      nextInvalidFields.nickname = true;
+      setErrorMessage('닉네임을 입력해주세요.');
+    } else if (!form.dataConsentAgreed) {
+      setErrorMessage('개인 건강 데이터 수집 및 이용에 동의해주세요.');
+    }
+
+    if (Object.keys(nextInvalidFields).length > 0 || !form.dataConsentAgreed) {
+      setInvalidFields(nextInvalidFields);
+      return;
+    }
+
     if (emailCheckStatus !== 'available') {
       setErrorMessage('이메일 중복 확인을 먼저 진행해주세요.');
       return;
@@ -80,7 +133,7 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
     setIsSubmitting(true);
 
     try {
-      await signup(form);
+      await signup({ ...form, email, nickname });
       onSignupSuccess();
     } catch (error) {
       setErrorMessage(error.message);
@@ -106,16 +159,15 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
         </p>
       </div>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form className="auth-form" noValidate onSubmit={handleSubmit}>
         <label className="form-field">
           이메일
           <div className="input-action-row">
             <input
               autoComplete="email"
-              className={emailCheckStatus === 'duplicate' ? 'is-invalid' : emailCheckStatus === 'available' ? 'is-valid' : ''}
+              className={invalidFields.email || emailCheckStatus === 'duplicate' ? 'is-invalid' : emailCheckStatus === 'available' ? 'is-valid' : ''}
               name="email"
               onChange={handleChange}
-              required
               type="email"
               value={form.email}
             />
@@ -134,10 +186,9 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
           비밀번호
           <input
             autoComplete="new-password"
-            className={isPasswordMismatched ? 'is-invalid' : isPasswordMatched ? 'is-valid' : ''}
+            className={invalidFields.password || isPasswordMismatched ? 'is-invalid' : isPasswordMatched ? 'is-valid' : ''}
             name="password"
             onChange={handleChange}
-            required
             type="password"
             value={form.password}
           />
@@ -147,10 +198,9 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
           비밀번호 확인
           <input
             autoComplete="new-password"
-            className={isPasswordMismatched ? 'is-invalid' : isPasswordMatched ? 'is-valid' : ''}
+            className={invalidFields.passwordConfirm || isPasswordMismatched ? 'is-invalid' : isPasswordMatched ? 'is-valid' : ''}
             name="passwordConfirm"
             onChange={handleChange}
-            required
             type="password"
             value={form.passwordConfirm}
           />
@@ -160,9 +210,9 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
           닉네임
           <input
             autoComplete="nickname"
+            className={invalidFields.nickname ? 'is-invalid' : ''}
             name="nickname"
             onChange={handleChange}
-            required
             type="text"
             value={form.nickname}
           />
@@ -173,7 +223,6 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
             checked={form.dataConsentAgreed}
             name="dataConsentAgreed"
             onChange={handleChange}
-            required
             type="checkbox"
           />
           <span>개인 건강 데이터 수집 및 이용에 동의합니다.</span>
@@ -182,7 +231,7 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
         {successMessage ? <p className="form-success">{successMessage}</p> : null}
 
-        <button className="primary-button" disabled={isSubmitting || emailCheckStatus !== 'available' || isPasswordMismatched} type="submit">
+        <button className="primary-button" disabled={isSubmitting} type="submit">
           {isSubmitting ? '가입 중...' : '회원가입'}
         </button>
       </form>
