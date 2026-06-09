@@ -11,7 +11,9 @@ public class RuleBasedFeedbackClient implements LlmFeedbackClient {
         String normalizedPrompt = prompt == null ? "" : prompt;
         boolean hasNoRecord = stats.intakeCalories() == 0
                 && stats.burnedCalories() == 0
-                && stats.exerciseMinutes() == 0;
+                && stats.exerciseMinutes() == 0
+                && stats.waterIntakeMl() == 0
+                && stats.sleepMinutes() == 0;
 
         if (hasNoRecord) {
             if (normalizedPrompt.contains("식단") || normalizedPrompt.contains("추천") || normalizedPrompt.contains("초보")) {
@@ -37,6 +39,22 @@ public class RuleBasedFeedbackClient implements LlmFeedbackClient {
                 return "오늘 운동량은 기본 목표를 충족한 편입니다. 무리하게 늘리기보다 수분 섭취와 회복을 함께 챙겨주세요.";
             }
             return "오늘 운동량은 조금 부족한 편입니다. 15분 정도 가벼운 걷기를 추가하면 칼로리 균형에 도움이 됩니다.";
+        }
+        if (normalizedPrompt.contains("물") || normalizedPrompt.contains("수분")) {
+            int remainingMl = Math.max(0, stats.hydrationTargetMl() - stats.waterIntakeMl());
+            if (remainingMl == 0) {
+                return "오늘 물 섭취 목표는 채운 상태입니다. 한 번에 많이 마시기보다 지금처럼 나눠 마시는 흐름을 유지해 주세요.";
+            }
+            return "오늘 물 섭취 목표까지 " + remainingMl + "ml 남았습니다. 250ml 정도씩 나눠 마시면 부담 없이 목표에 가까워질 수 있습니다.";
+        }
+        if (normalizedPrompt.contains("수면") || normalizedPrompt.contains("잠") || normalizedPrompt.contains("취침")) {
+            if (stats.sleepMinutes() == 0) {
+                return "수면 기록이 아직 없습니다. 취침 시간과 기상 시간을 먼저 저장하면 수면 패턴을 기준으로 더 구체적인 조언을 받을 수 있습니다.";
+            }
+            if (stats.sleepMinutes() < 360) {
+                return "오늘 수면 시간이 6시간 미만이라 회복 시간이 부족한 편입니다. 오늘은 카페인과 늦은 운동을 줄이고 평소보다 조금 일찍 누워보세요.";
+            }
+            return "수면 시간이 기본 회복 범위에 들어왔습니다. 같은 시간대에 자고 일어나는 리듬을 유지하면 컨디션 관리에 도움이 됩니다.";
         }
         if (normalizedPrompt.contains("칼로리") || normalizedPrompt.contains("균형")) {
             return "현재 칼로리 균형은 섭취 "

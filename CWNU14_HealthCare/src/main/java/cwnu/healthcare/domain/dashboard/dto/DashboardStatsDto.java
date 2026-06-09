@@ -5,6 +5,11 @@ public record DashboardStatsDto(
         int burnedCalories,
         int exerciseMinutes,
         int targetCalories,
-        int calorieBalance
+        int calorieBalance,
+        int hydrationTargetMl,
+        int waterIntakeMl,
+        String sleepStartTime,
+        String wakeTime,
+        int sleepMinutes
 ) {
 }

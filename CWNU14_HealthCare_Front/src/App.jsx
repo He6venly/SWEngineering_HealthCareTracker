@@ -122,7 +122,7 @@ function App() {
 
   const renderActiveTab = () => {
     if (activeTab === 'home') {
-      return <Dashboard currentUser={currentUser} />;
+      return <Dashboard currentUser={currentUser} onOpenAiAdvice={() => setActiveTab('advice')} />;
     }
 
     if (activeTab === 'records') {
@@ -145,7 +145,7 @@ function App() {
       );
     }
 
-    return <Dashboard currentUser={currentUser} />;
+    return <Dashboard currentUser={currentUser} onOpenAiAdvice={() => setActiveTab('advice')} />;
   };
 
   if (!isAuthenticated) {
