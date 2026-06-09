@@ -8,7 +8,7 @@ public class RuleBasedFeedbackClient implements LlmFeedbackClient {
 
     @Override
     public String generateFeedback(String prompt, DashboardStatsDto stats) {
-        String normalizedPrompt = prompt == null ? "" : prompt;
+        String normalizedPrompt = extractUserPrompt(prompt);
         boolean hasNoRecord = stats.intakeCalories() == 0
                 && stats.burnedCalories() == 0
                 && stats.exerciseMinutes() == 0
@@ -23,6 +23,23 @@ public class RuleBasedFeedbackClient implements LlmFeedbackClient {
                 return "오늘 운동 기록이 없으니 먼저 15~20분 걷기처럼 부담 없는 활동부터 시작해보세요. 운동명, 시간, 예상 소모 칼로리를 기록하면 다음 질문부터 목표 대비 부족한 부분을 이어서 알려드릴 수 있습니다.";
             }
             return "오늘은 아직 식단이나 운동 기록이 없습니다. 처음 시작이라면 한 끼 음식명과 대략적인 칼로리, 걷기 같은 가벼운 운동 시간부터 기록해보세요.";
+        }
+
+        if (normalizedPrompt.contains("칭찬") || normalizedPrompt.contains("잘한") || normalizedPrompt.contains("좋은 점")) {
+            if (stats.exerciseMinutes() >= 20) {
+                return "오늘 기록에서 가장 좋은 점은 운동 시간을 꾸준히 확보했다는 점입니다. 여기에 물 섭취와 식단 기록까지 이어가면 하루 루틴이 더 안정적으로 잡힐 수 있습니다.";
+            }
+            if (stats.waterIntakeMl() > 0) {
+                return "오늘은 물 섭취를 기록한 점이 좋습니다. 작은 기록이라도 남기면 생활 패턴을 확인하기 쉬워지고, 다음 목표를 잡는 기준이 됩니다.";
+            }
+            if (stats.intakeCalories() > 0) {
+                return "오늘 식단을 기록한 점이 좋습니다. 섭취량을 눈으로 확인하는 것만으로도 다음 식사 선택을 조절하는 데 도움이 됩니다.";
+            }
+            return "오늘 기록을 남기기 시작한 점 자체가 좋습니다. 기록이 쌓이면 AI 코치가 더 구체적으로 칭찬할 부분과 개선할 부분을 구분해드릴 수 있습니다.";
+        }
+
+        if (normalizedPrompt.contains("테스트")) {
+            return "테스트 메시지 확인했습니다. 식단, 운동, 물 섭취, 수면처럼 확인하고 싶은 항목을 질문하면 해당 기록을 기준으로 답변해드릴게요.";
         }
 
         if (normalizedPrompt.contains("내일") || normalizedPrompt.contains("목표")) {
@@ -77,5 +94,35 @@ public class RuleBasedFeedbackClient implements LlmFeedbackClient {
             return "오늘은 목표 대비 균형이 괜찮습니다. 현재 식단과 운동 흐름을 유지해도 좋습니다.";
         }
         return "기록 기준으로 큰 문제는 없습니다. 내일도 식단과 운동을 꾸준히 기록해 주세요.";
+    }
+
+    private String extractUserPrompt(String prompt) {
+        if (prompt == null || prompt.isBlank()) {
+            return "";
+        }
+
+        String marker = "마지막 사용자 질문:";
+        int markerIndex = prompt.lastIndexOf(marker);
+        if (markerIndex >= 0) {
+            String afterMarker = prompt.substring(markerIndex + marker.length());
+            int contextIndex = afterMarker.indexOf("비공개 참고 정보:");
+
+            return (contextIndex >= 0 ? afterMarker.substring(0, contextIndex) : afterMarker)
+                    .strip()
+                    .toLowerCase();
+        }
+
+        marker = "사용자 질문:";
+        markerIndex = prompt.lastIndexOf(marker);
+        if (markerIndex >= 0) {
+            String afterMarker = prompt.substring(markerIndex + marker.length());
+            int summaryIndex = afterMarker.indexOf("오늘 요약:");
+
+            return (summaryIndex >= 0 ? afterMarker.substring(0, summaryIndex) : afterMarker)
+                    .strip()
+                    .toLowerCase();
+        }
+
+        return prompt.toLowerCase();
     }
 }
