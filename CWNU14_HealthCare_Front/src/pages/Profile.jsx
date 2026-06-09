@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { updateCurrentUser } from '../api/auth.js';
 import { getProfile, updateProfile } from '../api/profile.js';
 
 const emptyForm = {
@@ -114,15 +113,15 @@ function Profile({
     setIsSubmitting(true);
 
     try {
-      const updatedUser = await updateCurrentUser({
+      const savedData = await updateProfile({
         nickname: form.nickname.trim(),
-      });
-      const savedProfile = await updateProfile({
         height: Number(form.height),
         weight: Number(form.weight),
         targetCalories: Number(form.targetCalories),
         targetWeight: Number(form.targetWeight),
       });
+      const updatedUser = savedData.user;
+      const savedProfile = savedData.profile;
 
       onUserUpdated?.(updatedUser);
       setProfile(savedProfile);

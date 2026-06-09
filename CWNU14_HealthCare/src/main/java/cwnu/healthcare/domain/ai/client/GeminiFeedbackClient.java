@@ -46,7 +46,7 @@ public class GeminiFeedbackClient implements LlmFeedbackClient {
 
     @Override
     public String generateFeedback(String prompt, DashboardStatsDto stats) {
-        if (!"gemini".equalsIgnoreCase(provider) || apiKey == null || apiKey.isBlank()) {
+        if (!isGeminiEnabled()) {
             log.info("Gemini disabled. provider={}, apiKeyConfigured={}", provider, apiKey != null && !apiKey.isBlank());
             return fallbackClient.generateFeedback(prompt, stats);
         }
@@ -62,6 +62,17 @@ public class GeminiFeedbackClient implements LlmFeedbackClient {
         }
 
         return fallbackClient.generateFeedback(prompt, stats);
+    }
+
+    private boolean isGeminiEnabled() {
+        if (apiKey == null || apiKey.isBlank()) {
+            return false;
+        }
+
+        return provider == null
+                || provider.isBlank()
+                || "auto".equalsIgnoreCase(provider)
+                || "gemini".equalsIgnoreCase(provider);
     }
 
     private GeminiResponse requestGemini(String prompt, String candidateModel) {
