@@ -279,9 +279,14 @@ function AiAdvice() {
 
           {isGenerating ? (
             <article className="chat-message assistant">
-              <div className="chat-bubble">
+              <div className="chat-bubble thinking-bubble">
                 <p className="chat-meta">AI 코치</p>
-                <p className="feedback-text">기록과 이전 대화를 확인하고 답변을 작성하는 중...</p>
+                <div className="thinking-indicator" aria-label="AI 답변 생성 중">
+                  <span />
+                  <span />
+                  <span />
+                  <strong>기록을 확인하고 답변을 작성하는 중</strong>
+                </div>
               </div>
             </article>
           ) : null}

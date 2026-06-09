@@ -48,6 +48,8 @@ public class AiFeedbackService {
         return "섭취 " + stats.intakeCalories()
                 + "kcal, 소모 " + stats.burnedCalories()
                 + "kcal, 운동 " + stats.exerciseMinutes()
+                + "분, 물 " + stats.waterIntakeMl()
+                + "ml, 수면 " + stats.sleepMinutes()
                 + "분";
     }
 
@@ -71,7 +73,17 @@ public class AiFeedbackService {
                 오늘 요약: %s
                 목표 칼로리: %dkcal
                 칼로리 밸런스: %dkcal
-                """.formatted(userPrompt, summary, stats.targetCalories(), stats.calorieBalance());
+                물 섭취: %dml/%dml
+                수면: %d분
+                """.formatted(
+                userPrompt,
+                summary,
+                stats.targetCalories(),
+                stats.calorieBalance(),
+                stats.waterIntakeMl(),
+                stats.hydrationTargetMl(),
+                stats.sleepMinutes()
+        );
     }
 
     private AiFeedbackResponse toResponse(AiFeedbackRecord record) {

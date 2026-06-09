@@ -187,8 +187,12 @@ public class AiConversationService {
     }
 
     private String buildHealthContext(DashboardStatsDto stats) {
-        if (stats.intakeCalories() == 0 && stats.burnedCalories() == 0 && stats.exerciseMinutes() == 0) {
-            return "선택한 날짜에는 식단과 운동 기록이 아직 없다. 건강 조언이 필요할 때만 이 사실을 참고하고, 일반 인사에는 언급하지 않는다.";
+        if (stats.intakeCalories() == 0
+                && stats.burnedCalories() == 0
+                && stats.exerciseMinutes() == 0
+                && stats.waterIntakeMl() == 0
+                && stats.sleepMinutes() == 0) {
+            return "선택한 날짜에는 식단, 운동, 수분, 수면 기록이 아직 없다. 건강 조언이 필요할 때만 이 사실을 참고하고, 일반 인사에는 언급하지 않는다.";
         }
 
         return "선택한 날짜의 기록은 섭취 "
@@ -201,7 +205,15 @@ public class AiConversationService {
                 + stats.targetCalories()
                 + "kcal, 칼로리 균형 "
                 + stats.calorieBalance()
-                + "kcal이다. 이 정보는 답변 참고용이며 그대로 노출하지 않는다.";
+                + "kcal, 물 섭취 "
+                + stats.waterIntakeMl()
+                + "ml/목표 "
+                + stats.hydrationTargetMl()
+                + "ml, 수면 "
+                + formatSleepDuration(stats.sleepMinutes())
+                + "이며 수면 시간대는 "
+                + formatSleepTimeRange(stats)
+                + "이다. 이 정보는 답변 참고용이며 그대로 노출하지 않는다.";
     }
 
     private boolean isHealthRelatedQuestion(String userMessageText) {
@@ -219,6 +231,12 @@ public class AiConversationService {
                 || normalized.contains("몸무게")
                 || normalized.contains("체중")
                 || normalized.contains("건강")
+                || normalized.contains("물")
+                || normalized.contains("수분")
+                || normalized.contains("수면")
+                || normalized.contains("잠")
+                || normalized.contains("취침")
+                || normalized.contains("기상")
                 || normalized.contains("기록")
                 || normalized.contains("부족")
                 || normalized.contains("추천")
@@ -229,7 +247,25 @@ public class AiConversationService {
                 || normalized.contains("calorie")
                 || normalized.contains("exercise")
                 || normalized.contains("workout")
+                || normalized.contains("water")
+                || normalized.contains("sleep")
                 || normalized.contains("weight");
+    }
+
+    private String formatSleepDuration(int sleepMinutes) {
+        if (sleepMinutes <= 0) {
+            return "기록 없음";
+        }
+
+        return (sleepMinutes / 60) + "시간 " + (sleepMinutes % 60) + "분";
+    }
+
+    private String formatSleepTimeRange(DashboardStatsDto stats) {
+        if (stats.sleepStartTime() == null || stats.wakeTime() == null) {
+            return "기록 없음";
+        }
+
+        return stats.sleepStartTime() + "부터 " + stats.wakeTime() + "까지";
     }
 
     private String normalizeTitle(String title) {
