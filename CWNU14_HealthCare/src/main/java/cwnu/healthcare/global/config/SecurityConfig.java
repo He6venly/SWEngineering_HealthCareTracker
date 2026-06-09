@@ -25,13 +25,16 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final String allowedOrigins;
+	private final String allowedOriginPatterns;
 
 	public SecurityConfig(
 		JwtAuthenticationFilter jwtAuthenticationFilter,
-		@Value("${app.cors.allowed-origins}") String allowedOrigins
+		@Value("${app.cors.allowed-origins}") String allowedOrigins,
+		@Value("${app.cors.allowed-origin-patterns:}") String allowedOriginPatterns
 	) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.allowedOrigins = allowedOrigins;
+		this.allowedOriginPatterns = allowedOriginPatterns;
 	}
 
 	@Bean
@@ -58,6 +61,10 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
+			.map(String::trim)
+			.filter(origin -> !origin.isBlank())
+			.toList());
+		configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns.split(","))
 			.map(String::trim)
 			.filter(origin -> !origin.isBlank())
 			.toList());
