@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { signup } from '../api/auth.js';
+import cwnuLogo from '../assets/cwnu-logo.png';
 
 function Signup({ onSignupSuccess, onSwitchToLogin }) {
   const [form, setForm] = useState({
@@ -42,6 +43,9 @@ function Signup({ onSignupSuccess, onSwitchToLogin }) {
       </button>
 
       <div className="auth-heading">
+        <div className="auth-logo-strip compact">
+          <img alt="국립창원대학교" src={cwnuLogo} />
+        </div>
         <p className="app-eyebrow">건강 기록 시작하기</p>
         <h1 id="signup-title" className="app-title">
           회원가입

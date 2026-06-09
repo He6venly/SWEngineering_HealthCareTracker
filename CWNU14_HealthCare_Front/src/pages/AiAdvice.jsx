@@ -232,6 +232,17 @@ function AiAdvice() {
     }
   };
 
+  const handleMessageKeyDown = (event) => {
+    if (event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    if (!isGenerating) {
+      event.currentTarget.form?.requestSubmit();
+    }
+  };
+
   return (
     <>
       <section className="screen-heading">
@@ -309,6 +320,7 @@ function AiAdvice() {
             <span>질문 입력</span>
             <textarea
               name="messageText"
+              onKeyDown={handleMessageKeyDown}
               onChange={(event) => setMessageText(event.target.value)}
               placeholder="예) 오늘 기록에서 부족한 점을 알려줘."
               rows="3"

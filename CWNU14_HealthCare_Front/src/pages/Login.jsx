@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { HeartPulse, ShieldCheck } from 'lucide-react';
 import { login } from '../api/auth.js';
+import cwnuLogo from '../assets/cwnu-logo.png';
 
 function Login({ onLoginSuccess, onSwitchToSignup }) {
   const [form, setForm] = useState({
@@ -59,6 +60,9 @@ function Login({ onLoginSuccess, onSwitchToSignup }) {
       </div>
 
       <div className="auth-heading">
+        <div className="auth-logo-strip">
+          <img alt="국립창원대학교" src={cwnuLogo} />
+        </div>
         <p className="app-eyebrow">환영합니다</p>
         <h1 id="login-title" className="app-title auth-title">
           CWNU 헬스케어에 로그인하세요

@@ -2,10 +2,10 @@ import {
   Bot,
   ChartNoAxesCombined,
   ClipboardList,
-  HeartPulse,
   LogOut,
   UserRound,
 } from 'lucide-react';
+import cwnuLogo from '../assets/cwnu-logo.png';
 
 const tabs = [
   { id: 'home', label: '홈', icon: ChartNoAxesCombined },
@@ -22,7 +22,7 @@ function AppLayout({ activeTab, children, currentUser, onLogout, onTabChange }) 
       <header className="app-header">
         <div className="brand-block">
           <div className="brand-mark" aria-hidden="true">
-            <HeartPulse size={22} strokeWidth={2.4} />
+            <img alt="" src={cwnuLogo} />
           </div>
           <div>
             <p className="app-eyebrow">CWNU 헬스케어</p>
