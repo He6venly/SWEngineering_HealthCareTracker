@@ -107,6 +107,10 @@ function App() {
     setActiveTab('home');
   };
 
+  const handleUserUpdated = (user) => {
+    setCurrentUser(user);
+  };
+
   const handleTabChange = (tab) => {
     if (profileRequired && tab !== 'profile') {
       setActiveTab('profile');
@@ -136,6 +140,7 @@ function App() {
           initialProfile={currentProfile}
           isRequired={profileRequired}
           onProfileSaved={handleProfileSaved}
+          onUserUpdated={handleUserUpdated}
         />
       );
     }

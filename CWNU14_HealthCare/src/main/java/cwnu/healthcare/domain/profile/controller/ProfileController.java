@@ -1,7 +1,8 @@
 package cwnu.healthcare.domain.profile.controller;
 
-import cwnu.healthcare.domain.profile.dto.HealthProfileRequest;
 import cwnu.healthcare.domain.profile.dto.HealthProfileResponse;
+import cwnu.healthcare.domain.profile.dto.HealthProfileUpdateRequest;
+import cwnu.healthcare.domain.profile.dto.HealthProfileUpdateResponse;
 import cwnu.healthcare.domain.profile.service.ProfileService;
 import cwnu.healthcare.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -26,9 +27,9 @@ public class ProfileController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<HealthProfileResponse>> updateProfile(
+    public ResponseEntity<ApiResponse<HealthProfileUpdateResponse>> updateProfile(
             @AuthenticationPrincipal String userId,
-            @Valid @RequestBody HealthProfileRequest request
+            @Valid @RequestBody HealthProfileUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(profileService.updateProfile(userId, request)));
     }

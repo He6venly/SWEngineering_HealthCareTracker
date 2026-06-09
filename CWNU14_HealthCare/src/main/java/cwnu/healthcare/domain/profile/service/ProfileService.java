@@ -1,18 +1,24 @@
 package cwnu.healthcare.domain.profile.service;
 
 import cwnu.healthcare.domain.profile.document.HealthProfile;
-import cwnu.healthcare.domain.profile.dto.HealthProfileRequest;
 import cwnu.healthcare.domain.profile.dto.HealthProfileResponse;
+import cwnu.healthcare.domain.profile.dto.HealthProfileUpdateRequest;
+import cwnu.healthcare.domain.profile.dto.HealthProfileUpdateResponse;
 import cwnu.healthcare.domain.profile.repository.HealthProfileRepository;
+import cwnu.healthcare.domain.user.document.User;
+import cwnu.healthcare.domain.user.dto.UserResponse;
+import cwnu.healthcare.domain.user.repository.UserRepository;
 import cwnu.healthcare.global.exception.BusinessException;
 import cwnu.healthcare.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
     private final HealthProfileRepository healthProfileRepository;
+    private final UserRepository userRepository;
 
     public HealthProfileResponse getProfile(String userId) {
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
@@ -21,7 +27,10 @@ public class ProfileService {
         return toResponse(profile);
     }
 
-    public HealthProfileResponse updateProfile(String userId, HealthProfileRequest request) {
+    @Transactional
+    public HealthProfileUpdateResponse updateProfile(String userId, HealthProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         HealthProfile profile = healthProfileRepository.findByUserId(userId)
                 .map(existingProfile -> {
                     existingProfile.update(
@@ -40,8 +49,13 @@ public class ProfileService {
                         .targetWeight(request.getTargetWeight())
                         .build());
 
+        user.updateNickname(request.getNickname().strip());
+        User savedUser = userRepository.save(user);
         HealthProfile savedProfile = healthProfileRepository.save(profile);
-        return toResponse(savedProfile);
+        return HealthProfileUpdateResponse.builder()
+                .user(UserResponse.from(savedUser))
+                .profile(toResponse(savedProfile))
+                .build();
     }
 
     private HealthProfileResponse toResponse(HealthProfile profile) {

@@ -2,12 +2,16 @@ package cwnu.healthcare.domain.user.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import cwnu.healthcare.domain.user.dto.UpdateUserRequest;
 import cwnu.healthcare.domain.user.dto.UserResponse;
 import cwnu.healthcare.domain.user.service.UserService;
 import cwnu.healthcare.global.common.ApiResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -22,5 +26,13 @@ public class UserController {
 	@GetMapping("/me")
 	public ApiResponse<UserResponse> getCurrentUser(@AuthenticationPrincipal String userId) {
 		return ApiResponse.success(userService.getCurrentUser(userId));
+	}
+
+	@PatchMapping("/me")
+	public ApiResponse<UserResponse> updateCurrentUser(
+		@AuthenticationPrincipal String userId,
+		@Valid @RequestBody UpdateUserRequest request
+	) {
+		return ApiResponse.success(userService.updateCurrentUser(userId, request));
 	}
 }

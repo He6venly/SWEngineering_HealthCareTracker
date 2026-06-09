@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react';
 import { getProfile, updateProfile } from '../api/profile.js';
 
 const emptyForm = {
+  nickname: '',
   height: '',
   weight: '',
   targetCalories: '',
   targetWeight: '',
 };
 
-function toForm(profile) {
+function toForm(profile, user) {
   return {
+    nickname: user?.nickname ?? '',
     height: profile?.height?.toString() ?? '',
     weight: profile?.weight?.toString() ?? '',
     targetCalories: profile?.targetCalories?.toString() ?? '',
@@ -17,8 +19,14 @@ function toForm(profile) {
   };
 }
 
-function Profile({ currentUser, initialProfile = null, isRequired = false, onProfileSaved }) {
-  const [form, setForm] = useState(() => toForm(initialProfile));
+function Profile({
+  currentUser,
+  initialProfile = null,
+  isRequired = false,
+  onProfileSaved,
+  onUserUpdated,
+}) {
+  const [form, setForm] = useState(() => toForm(initialProfile, currentUser));
   const [profile, setProfile] = useState(initialProfile);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState(
@@ -29,12 +37,19 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
   const nickname = currentUser?.nickname ?? '';
 
   useEffect(() => {
+    setForm((currentForm) => ({
+      ...currentForm,
+      nickname,
+    }));
+  }, [nickname]);
+
+  useEffect(() => {
     if (initialProfile) {
       setProfile(initialProfile);
-      setForm(toForm(initialProfile));
+      setForm(toForm(initialProfile, currentUser));
       setIsLoading(false);
     }
-  }, [initialProfile]);
+  }, [currentUser, initialProfile]);
 
   useEffect(() => {
     if (initialProfile || isRequired) {
@@ -55,7 +70,7 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
         }
 
         setProfile(loadedProfile);
-        setForm(toForm(loadedProfile));
+        setForm(toForm(loadedProfile, currentUser));
       } catch (error) {
         if (!isMounted) {
           return;
@@ -63,7 +78,7 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
 
         if (error.errorCode === 'ERR-P001') {
           setProfile(null);
-          setForm(emptyForm);
+          setForm(toForm(null, currentUser));
           setSuccessMessage('건강 목표 관리를 시작하려면 프로필을 입력해 주세요.');
         } else {
           setErrorMessage(error.message);
@@ -80,7 +95,7 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
     return () => {
       isMounted = false;
     };
-  }, [initialProfile, isRequired]);
+  }, [currentUser, initialProfile, isRequired]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -98,15 +113,19 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
     setIsSubmitting(true);
 
     try {
-      const savedProfile = await updateProfile({
+      const savedData = await updateProfile({
+        nickname: form.nickname.trim(),
         height: Number(form.height),
         weight: Number(form.weight),
         targetCalories: Number(form.targetCalories),
         targetWeight: Number(form.targetWeight),
       });
+      const updatedUser = savedData.user;
+      const savedProfile = savedData.profile;
 
+      onUserUpdated?.(updatedUser);
       setProfile(savedProfile);
-      setForm(toForm(savedProfile));
+      setForm(toForm(savedProfile, updatedUser));
       setSuccessMessage('프로필을 저장했습니다.');
       onProfileSaved?.(savedProfile);
     } catch (error) {
@@ -124,7 +143,7 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
           {nickname ? `${nickname}님의 건강 목표` : '건강 목표 관리'}
         </h2>
         <p className="app-summary">
-          닉네임과 신체 정보를 확인하고, 목표 칼로리와 목표 몸무게를 설정해 맞춤 기록 기준으로
+          이름과 신체 정보를 확인하고, 목표 칼로리와 목표 몸무게를 설정해 맞춤 기록 기준으로
           사용합니다.
         </p>
       </section>
@@ -144,7 +163,14 @@ function Profile({ currentUser, initialProfile = null, isRequired = false, onPro
             <div className="form-grid">
               <label className="form-field">
                 이름
-                <input readOnly type="text" value={nickname || '회원가입 닉네임을 불러오는 중'} />
+                <input
+                  name="nickname"
+                  onChange={handleChange}
+                  placeholder="예) 선호"
+                  required
+                  type="text"
+                  value={form.nickname}
+                />
               </label>
 
               <label className="form-field">

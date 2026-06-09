@@ -22,6 +22,22 @@ function getWeekStart(dateString) {
   return formatLocalDate(date);
 }
 
+function getCalorieStatus(intakeCalories, targetCalories) {
+  if (!targetCalories) {
+    return 'neutral';
+  }
+
+  if (intakeCalories > targetCalories) {
+    return 'over';
+  }
+
+  if (targetCalories - intakeCalories <= 200) {
+    return 'close';
+  }
+
+  return 'balanced';
+}
+
 function Dashboard({ currentUser }) {
   const [selectedDate, setSelectedDate] = useState(today);
   const [dailyDashboard, setDailyDashboard] = useState(null);
@@ -34,8 +50,10 @@ function Dashboard({ currentUser }) {
   const weeklyStats = weeklyDashboard?.stats;
   const dailyStats = weeklyDashboard?.dailyStats ?? [];
   const targetCalories = stats?.targetCalories ?? weeklyStats?.targetCalories ?? 0;
+  const intakeCalories = stats?.intakeCalories ?? 0;
   const targetOverage = Math.max(0, (stats?.intakeCalories ?? 0) - targetCalories);
   const targetRemaining = Math.max(0, targetCalories - (stats?.intakeCalories ?? 0));
+  const calorieStatus = getCalorieStatus(intakeCalories, targetCalories);
   const maxWeeklyCalories = Math.max(
     1,
     ...dailyStats.map((day) =>
@@ -97,7 +115,7 @@ function Dashboard({ currentUser }) {
             하루 섭취, 소모, 운동량을 확인하고 이번 주 흐름까지 함께 살펴보세요.
           </p>
         </div>
-        <div className="hero-visual" aria-hidden="true">
+        <div className={`hero-visual ${calorieStatus}`} aria-hidden="true">
           <Gauge size={34} strokeWidth={2.2} />
           <strong>{stats?.calorieBalance ?? 0}</strong>
           <span>kcal 균형</span>

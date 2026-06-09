@@ -47,6 +47,10 @@ public class User extends BaseDocument {
 		return nickname;
 	}
 
+	public void updateNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
 	public boolean isDataConsentAgreed() {
 		return dataConsentAgreed;
 	}
