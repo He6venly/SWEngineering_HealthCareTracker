@@ -30,8 +30,10 @@ export function hasAccessToken() {
 
 export async function apiRequest(path, options = {}) {
   const token = getAccessToken();
+  const method = options.method?.toUpperCase() ?? 'GET';
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
+    cache: method === 'GET' ? 'no-store' : options.cache,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
